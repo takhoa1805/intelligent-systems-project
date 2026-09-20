@@ -9,7 +9,7 @@ const server = app.listen(env.port, () => {
 async function shutdown(signal) {
   console.log(`${signal} received. Shutting down gracefully.`);
   server.close(async () => {
-    await db.end();
+    await db.$disconnect();
     process.exit(0);
   });
 }

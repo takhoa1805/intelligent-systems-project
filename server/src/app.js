@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { env } from './config/env.js';
-import { query } from './config/database.js';
+import { db } from './config/database.js';
 import { asyncHandler } from './shared/asyncHandler.js';
 import { productRouter } from './modules/products/product.routes.js';
 import { categoryRouter } from './modules/categories/category.routes.js';
@@ -20,7 +20,7 @@ app.use(cors({ origin: env.clientUrl }));
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/health', asyncHandler(async (_req, res) => {
-  await query('SELECT 1');
+  await db.category.count();
   res.json({ status: 'ok', service: 'signal-shop-api' });
 }));
 

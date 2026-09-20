@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique @db.VarChar(80)
+  slug     String    @unique @db.VarChar(80)
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  categoryId  Int         @map("category_id")
+  name        String      @db.VarChar(160)
+  slug        String      @unique @db.VarChar(180)
+  description String
+  price       Decimal     @db.Decimal(12, 2)
+  stock       Int         @default(0)
+  imageUrl    String?     @map("image_url")
+  accent      String      @default("#FF6B35") @db.VarChar(20)
+  featured    Boolean     @default(false)
+  active      Boolean     @default(true)
+  rating      Decimal     @default(4.5) @db.Decimal(2, 1)
+  tags        String[]    @default([])
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime    @default(now()) @map("updated_at") @db.Timestamptz(6)
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+  userEvents  UserEvent[]
+
+  @@index([categoryId], map: "idx_products_category")
+  @@index([active, updatedAt(sort: Desc)], map: "idx_products_active_updated_at")
+  @@map("products")
+}
+
+model Order {
+  id            BigInt      @id @default(autoincrement())
+  orderNumber   String      @unique @default(dbgenerated("('SS-'::text || upper(SUBSTRING(md5((random())::text), 1, 6)))")) @map("order_number")
+  customerName  String      @map("customer_name") @db.VarChar(120)
+  customerEmail String      @map("customer_email") @db.VarChar(160)
+  subtotal      Decimal     @db.Decimal(12, 2)
+  total         Decimal     @db.Decimal(12, 2)
+  status        String      @default("paid") @db.VarChar(30)
+  createdAt     DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  items         OrderItem[]
+
+  @@index([createdAt], map: "idx_orders_created_at")
+  @@map("orders")
+}
+
+model OrderItem {
+  id          BigInt   @id @default(autoincrement())
+  orderId     BigInt   @map("order_id")
+  productId   Int?     @map("product_id")
+  productName String   @map("product_name") @db.VarChar(160)
+  quantity    Int
+  unitPrice   Decimal  @map("unit_price") @db.Decimal(12, 2)
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product? @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model UserEvent {
+  id        BigInt   @id @default(autoincrement())
+  sessionId String   @map("session_id") @db.VarChar(100)
+  eventType String   @map("event_type") @db.VarChar(40)
+  productId Int?     @map("product_id")
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  product   Product? @relation(fields: [productId], references: [id])
+
+  @@index([sessionId, eventType], map: "idx_events_session_type")
+  @@index([createdAt], map: "idx_events_created_at")
+  @@map("user_events")
+}

@@ -22,13 +22,13 @@ function validateRequest({ customer, items }) {
 export async function createOrder(input) {
   const { customer, items } = validateRequest(input);
   return withTransaction(async (client) => {
-    const products = await repository.lockProducts(client, [...new Set(items.map((item) => item.productId))]);
+    const products = await repository.findProducts(client, [...new Set(items.map((item) => item.productId))]);
     const productMap = new Map(products.map((product) => [product.id, product]));
     const resolvedItems = items.map((item) => {
       const product = productMap.get(item.productId);
       if (!product) throw new AppError('One or more products no longer exist', 400);
       if (product.stock < item.quantity) throw new AppError(`Not enough stock for ${product.name}`, 409);
-      return { ...product, quantity: item.quantity };
+      return { ...product, price: Number(product.price), quantity: item.quantity };
     });
     const total = resolvedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const order = await repository.insertOrder(client, {
@@ -38,8 +38,14 @@ export async function createOrder(input) {
     });
     for (const item of resolvedItems) {
       await repository.insertOrderItem(client, order.id, item);
-      await repository.decrementStock(client, item.id, item.quantity);
+      const stockUpdated = await repository.decrementStock(client, item.id, item.quantity);
+      if (!stockUpdated) throw new AppError(`Not enough stock for ${item.name}`, 409);
     }
-    return order;
+    return {
+      id: Number(order.id),
+      order_number: order.orderNumber,
+      total: Number(order.total),
+      created_at: order.createdAt,
+    };
   });
 }

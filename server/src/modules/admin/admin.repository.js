@@ -1,30 +1,98 @@
-import { query } from '../../config/database.js';
+import { db } from '../../config/database.js';
+
+function startOfUtcDay(date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+function dayKey(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function dayLabel(date) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short', day: '2-digit', timeZone: 'UTC',
+  }).format(date);
+}
 
 export async function getOverview() {
-  const [summary, trend, categories, topProducts, recentOrders] = await Promise.all([
-    query(`SELECT COALESCE(SUM(total), 0)::float AS revenue,
-      COUNT(*)::int AS orders, COUNT(DISTINCT customer_email)::int AS customers,
-      COALESCE(AVG(total), 0)::float AS average_order
-      FROM orders WHERE status <> 'cancelled'`),
-    query(`SELECT TO_CHAR(day, 'Mon DD') AS label, COALESCE(SUM(o.total), 0)::float AS revenue
-      FROM generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, INTERVAL '1 day') day
-      LEFT JOIN orders o ON o.created_at::date = day::date AND o.status <> 'cancelled'
-      GROUP BY day ORDER BY day`),
-    query(`SELECT c.name, COALESCE(SUM(oi.quantity * oi.unit_price), 0)::float AS revenue
-      FROM categories c LEFT JOIN products p ON p.category_id = c.id
-      LEFT JOIN order_items oi ON oi.product_id = p.id GROUP BY c.id ORDER BY revenue DESC`),
-    query(`SELECT p.name, SUM(oi.quantity)::int AS units,
-      SUM(oi.quantity * oi.unit_price)::float AS revenue
-      FROM order_items oi JOIN products p ON p.id = oi.product_id
-      GROUP BY p.id ORDER BY units DESC, revenue DESC LIMIT 5`),
-    query(`SELECT order_number, customer_name, total::float, status, created_at
-      FROM orders ORDER BY created_at DESC LIMIT 6`),
+  const today = startOfUtcDay(new Date());
+  const firstDay = new Date(today);
+  firstDay.setUTCDate(firstDay.getUTCDate() - 6);
+
+  const [aggregate, customers, recentRevenueOrders, categories, orderItems, recentOrders] = await Promise.all([
+    db.order.aggregate({
+      where: { status: { not: 'cancelled' } },
+      _sum: { total: true },
+      _avg: { total: true },
+      _count: { id: true },
+    }),
+    db.order.findMany({
+      where: { status: { not: 'cancelled' } },
+      distinct: ['customerEmail'],
+      select: { customerEmail: true },
+    }),
+    db.order.findMany({
+      where: { status: { not: 'cancelled' }, createdAt: { gte: firstDay } },
+      select: { total: true, createdAt: true },
+    }),
+    db.category.findMany({ select: { id: true, name: true } }),
+    db.orderItem.findMany({
+      select: {
+        quantity: true,
+        unitPrice: true,
+        product: { select: { id: true, name: true, categoryId: true } },
+      },
+    }),
+    db.order.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 6,
+      select: { orderNumber: true, customerName: true, total: true, status: true, createdAt: true },
+    }),
   ]);
+
+  const dailyRevenue = new Map();
+  for (const order of recentRevenueOrders) {
+    const key = dayKey(order.createdAt);
+    dailyRevenue.set(key, (dailyRevenue.get(key) || 0) + Number(order.total));
+  }
+  const trend = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(firstDay);
+    date.setUTCDate(date.getUTCDate() + index);
+    return { label: dayLabel(date), revenue: dailyRevenue.get(dayKey(date)) || 0 };
+  });
+
+  const categoryRevenue = new Map(categories.map((category) => [category.id, 0]));
+  const productPerformance = new Map();
+  for (const item of orderItems) {
+    if (!item.product) continue;
+    const revenue = item.quantity * Number(item.unitPrice);
+    categoryRevenue.set(item.product.categoryId, (categoryRevenue.get(item.product.categoryId) || 0) + revenue);
+    const current = productPerformance.get(item.product.id) || { name: item.product.name, units: 0, revenue: 0 };
+    current.units += item.quantity;
+    current.revenue += revenue;
+    productPerformance.set(item.product.id, current);
+  }
+
   return {
-    summary: summary.rows[0],
-    trend: trend.rows,
-    categories: categories.rows,
-    topProducts: topProducts.rows,
-    recentOrders: recentOrders.rows,
+    summary: {
+      revenue: Number(aggregate._sum.total || 0),
+      orders: aggregate._count.id,
+      customers: customers.length,
+      average_order: Number(aggregate._avg.total || 0),
+    },
+    trend,
+    categories: categories
+      .map((category) => ({ name: category.name, revenue: categoryRevenue.get(category.id) || 0 }))
+      .sort((a, b) => b.revenue - a.revenue),
+    topProducts: [...productPerformance.values()]
+      .sort((a, b) => b.units - a.units || b.revenue - a.revenue)
+      .slice(0, 5),
+    recentOrders: recentOrders.map((order) => ({
+      order_number: order.orderNumber,
+      customer_name: order.customerName,
+      total: Number(order.total),
+      status: order.status,
+      created_at: order.createdAt,
+    })),
   };
 }

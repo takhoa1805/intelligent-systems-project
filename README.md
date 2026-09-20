@@ -16,7 +16,7 @@ The current `/api/recommendations` route is explicitly a placeholder. Replace it
 ## Stack
 
 - React 19 + Vite
-- Express 4
+- Express 4 + Prisma ORM
 - PostgreSQL 16 in Docker
 - Recharts for admin analytics
 - Plain CSS design system (responsive, no image assets required)
@@ -56,11 +56,12 @@ npm run db:stop   # stop containers
 
 ## Backend structure
 
-The API is organized by feature under `server/src/modules`. Each feature keeps HTTP controllers, business rules, and SQL repositories separate. Shared configuration, error handling, and transaction helpers live outside the feature modules.
+The API is organized by feature under `server/src/modules`. Each feature keeps HTTP controllers, business rules, and Prisma repositories separate. Shared configuration, error handling, and transaction helpers live outside the feature modules.
 
 ```text
 server/
 ├── db/migrations/          # versioned Flyway SQL (V1, V2, ...)
+├── prisma/schema.prisma    # ORM models mapped to the Flyway schema
 └── src/
     ├── config/             # environment and PostgreSQL pool
     ├── middleware/         # HTTP error and 404 handling
@@ -71,6 +72,8 @@ server/
 ```
 
 When schema or seed data changes, add a new migration; do not edit a migration that has already been applied. Examples: `V3__add_customer_profiles.sql` or `V4__seed_more_orders.sql`.
+
+Flyway remains the only schema migration tool. After applying a migration that changes tables or columns, update `server/prisma/schema.prisma` and run `npm run prisma:generate -w server`. The application repositories use Prisma Client exclusively and contain no raw SQL.
 
 ## Data prepared for the recommender
 
