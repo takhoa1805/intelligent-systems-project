@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: signal-shop-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: signal_shop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - signal_shop_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d signal_shop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    image: flyway/flyway:10-alpine
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./server/db/migrations:/flyway/sql:ro
+    environment:
+      FLYWAY_URL: jdbc:postgresql://db:5432/signal_shop
+      FLYWAY_USER: postgres
+      FLYWAY_PASSWORD: postgres
+      FLYWAY_CONNECT_RETRIES: 10
+    command: migrate
+
+volumes:
+  signal_shop_data:

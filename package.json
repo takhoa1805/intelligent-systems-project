@@ -1,0 +1,18 @@
+{
+  "name": "signal-shop",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["client", "server"],
+  "scripts": {
+    "dev": "concurrently -n api,web -c yellow,cyan \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client",
+    "start": "npm run start -w server",
+    "db:start": "docker compose up -d --wait db && docker compose run --rm migrate",
+    "db:migrate": "docker compose run --rm migrate",
+    "db:info": "docker compose run --rm migrate info",
+    "db:stop": "docker compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
