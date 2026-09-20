@@ -1,7 +1,11 @@
 import { db } from '../../config/database.js';
 import { toProductDto } from '../../shared/mappers/product.mapper.js';
+import type { RecommendationItemDto } from './recommendation.dto.js';
 
-export async function findPlaceholderRecommendations(productId, limit) {
+export async function findPlaceholderRecommendations(
+  productId: number,
+  limit: number,
+): Promise<RecommendationItemDto[]> {
   const [source, candidates] = await Promise.all([
     productId ? db.product.findFirst({ where: { id: productId, active: true } }) : null,
     db.product.findMany({

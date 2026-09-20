@@ -16,7 +16,7 @@ The current `/api/recommendations` route is explicitly a placeholder. Replace it
 ## Stack
 
 - React 19 + Vite
-- Express 4 + Prisma ORM
+- Express 4 + strict TypeScript + Prisma ORM
 - PostgreSQL 16 in Docker
 - Recharts for admin analytics
 - Plain CSS design system (responsive, no image assets required)
@@ -66,6 +66,7 @@ server/
     ├── config/             # environment and PostgreSQL pool
     ├── middleware/         # HTTP error and 404 handling
     ├── modules/            # products, orders, events, admin, ...
+    │   └── *.dto.ts        # validated request and stable response contracts
     ├── shared/             # reusable server utilities
     ├── app.js              # Express composition
     └── server.js           # process lifecycle
@@ -74,6 +75,8 @@ server/
 When schema or seed data changes, add a new migration; do not edit a migration that has already been applied. Examples: `V3__add_customer_profiles.sql` or `V4__seed_more_orders.sql`.
 
 Flyway remains the only schema migration tool. After applying a migration that changes tables or columns, update `server/prisma/schema.prisma` and run `npm run prisma:generate -w server`. The application repositories use Prisma Client exclusively and contain no raw SQL.
+
+The backend compiles with TypeScript `strict` mode. Zod validates untrusted request bodies and query parameters at runtime, DTO interfaces define service/controller contracts, and mappers keep Prisma-specific `Decimal`, `BigInt`, relations, and column naming out of the API layer.
 
 ## Data prepared for the recommender
 

@@ -1,30 +1,30 @@
 import { withTransaction } from '../../config/database.js';
 import { AppError } from '../../shared/AppError.js';
 import * as repository from './order.repository.js';
+import {
+  parseCreateOrderDto,
+  type CreateOrderDto,
+  type OrderConfirmationDto,
+  type OrderItemInputDto,
+  type ResolvedOrderItemDto,
+} from './order.dto.js';
 
-function validateRequest({ customer, items }) {
-  if (!customer?.name?.trim() || !customer?.email?.trim() || !Array.isArray(items) || !items.length) {
-    throw new AppError('Customer name, email and cart items are required', 400);
-  }
-  const itemTotals = new Map();
+function normalizeOrder(input: unknown): CreateOrderDto {
+  const { customer, items } = parseCreateOrderDto(input);
+  const itemTotals = new Map<number, number>();
   for (const item of items) {
-    const productId = Number(item.productId);
-    const quantity = Number(item.quantity || 1);
-    itemTotals.set(productId, (itemTotals.get(productId) || 0) + quantity);
+    itemTotals.set(item.productId, (itemTotals.get(item.productId) || 0) + item.quantity);
   }
-  const normalized = [...itemTotals].map(([productId, quantity]) => ({ productId, quantity }));
-  if (normalized.some((item) => !Number.isInteger(item.productId) || !Number.isInteger(item.quantity) || item.quantity < 1)) {
-    throw new AppError('Every cart item needs a valid productId and positive integer quantity', 400);
-  }
+  const normalized: OrderItemInputDto[] = [...itemTotals].map(([productId, quantity]) => ({ productId, quantity }));
   return { customer, items: normalized };
 }
 
-export async function createOrder(input) {
-  const { customer, items } = validateRequest(input);
+export async function createOrder(input: unknown): Promise<OrderConfirmationDto> {
+  const { customer, items } = normalizeOrder(input);
   return withTransaction(async (client) => {
     const products = await repository.findProducts(client, [...new Set(items.map((item) => item.productId))]);
     const productMap = new Map(products.map((product) => [product.id, product]));
-    const resolvedItems = items.map((item) => {
+    const resolvedItems: ResolvedOrderItemDto[] = items.map((item) => {
       const product = productMap.get(item.productId);
       if (!product) throw new AppError('One or more products no longer exist', 400);
       if (product.stock < item.quantity) throw new AppError(`Not enough stock for ${product.name}`, 409);

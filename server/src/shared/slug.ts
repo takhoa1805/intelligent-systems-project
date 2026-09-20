@@ -1,4 +1,4 @@
-export function createUniqueSlug(name) {
+export function createUniqueSlug(name: string): string {
   const base = name
     .toLowerCase()
     .normalize('NFKD')

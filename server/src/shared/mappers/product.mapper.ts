@@ -1,4 +1,9 @@
-export function toProductDto(product) {
+import type { Prisma } from '@prisma/client';
+import type { ProductDto } from '../../modules/products/product.dto.js';
+
+type ProductWithCategory = Prisma.ProductGetPayload<{ include: { category: true } }>;
+
+export function toProductDto(product: ProductWithCategory): ProductDto {
   return {
     id: product.id,
     category_id: product.categoryId,
@@ -15,7 +20,9 @@ export function toProductDto(product) {
     tags: product.tags,
     created_at: product.createdAt,
     updated_at: product.updatedAt,
-    category: product.category?.name,
-    category_slug: product.category?.slug,
+    ...(product.category ? {
+      category: product.category.name,
+      category_slug: product.category.slug,
+    } : {}),
   };
 }

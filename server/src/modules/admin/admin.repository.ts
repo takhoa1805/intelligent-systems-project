@@ -1,20 +1,21 @@
 import { db } from '../../config/database.js';
+import type { AdminOverviewDto, ProductPerformanceDto } from './admin.dto.js';
 
-function startOfUtcDay(date) {
+function startOfUtcDay(date: Date): Date {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 }
 
-function dayKey(date) {
+function dayKey(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-function dayLabel(date) {
+function dayLabel(date: Date): string {
   return new Intl.DateTimeFormat('en-US', {
     month: 'short', day: '2-digit', timeZone: 'UTC',
   }).format(date);
 }
 
-export async function getOverview() {
+export async function getOverview(): Promise<AdminOverviewDto> {
   const today = startOfUtcDay(new Date());
   const firstDay = new Date(today);
   firstDay.setUTCDate(firstDay.getUTCDate() - 6);
@@ -50,7 +51,7 @@ export async function getOverview() {
     }),
   ]);
 
-  const dailyRevenue = new Map();
+  const dailyRevenue = new Map<string, number>();
   for (const order of recentRevenueOrders) {
     const key = dayKey(order.createdAt);
     dailyRevenue.set(key, (dailyRevenue.get(key) || 0) + Number(order.total));
@@ -61,8 +62,8 @@ export async function getOverview() {
     return { label: dayLabel(date), revenue: dailyRevenue.get(dayKey(date)) || 0 };
   });
 
-  const categoryRevenue = new Map(categories.map((category) => [category.id, 0]));
-  const productPerformance = new Map();
+  const categoryRevenue = new Map<number, number>(categories.map((category) => [category.id, 0]));
+  const productPerformance = new Map<number, ProductPerformanceDto>();
   for (const item of orderItems) {
     if (!item.product) continue;
     const revenue = item.quantity * Number(item.unitPrice);

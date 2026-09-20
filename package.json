@@ -5,7 +5,7 @@
   "workspaces": ["client", "server"],
   "scripts": {
     "dev": "concurrently -n api,web -c yellow,cyan \"npm run dev -w server\" \"npm run dev -w client\"",
-    "build": "npm run build -w client",
+    "build": "npm run build -w server && npm run build -w client",
     "start": "npm run start -w server",
     "db:start": "docker compose up -d --wait db && docker compose run --rm migrate",
     "db:migrate": "docker compose run --rm migrate",

@@ -6,7 +6,7 @@ const server = app.listen(env.port, () => {
   console.log(`Signal Shop API running at http://localhost:${env.port}`);
 });
 
-async function shutdown(signal) {
+async function shutdown(signal: NodeJS.Signals): Promise<void> {
   console.log(`${signal} received. Shutting down gracefully.`);
   server.close(async () => {
     await db.$disconnect();
