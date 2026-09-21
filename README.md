@@ -4,6 +4,14 @@ Signal Shop is a full-stack digital electronics storefront built for the Intelli
 
 The project also prepares the data boundary for a hybrid recommender system. Purchases are stored as transaction baskets for Association Rule Mining (ARM), product text and tags are available for word embeddings, and interaction events are captured for later ranking/evaluation.
 
+## Documentation
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system architecture: C4 views, module anatomy, data
+  model, runtime flows, the recommendation seam, the target ML topology, and ADRs.
+- [`docs/ML_STACK.md`](docs/ML_STACK.md) — the machine-learning stack for Association Rules Mining,
+  Recommender Systems and Word Embedding: libraries, algorithms, hyper-parameters, published
+  artefacts, evaluation, and the four-week delivery plan.
+
 ## Assignment alignment
 
 The assignment requires two essays (minimum 1,000 words each), one lab containing a problem statement, documented dataset, source code and output explanation, four weekly learning journals, and analysis of results. This repository is the implementation foundation for a lab combining:
