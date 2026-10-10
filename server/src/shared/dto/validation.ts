@@ -1,7 +1,7 @@
-import { type ZodType } from 'zod';
+import { type ZodType, type ZodTypeDef } from 'zod';
 import { AppError } from '../AppError.js';
 
-export function parseDto<T>(schema: ZodType<T>, value: unknown): T {
+export function parseDto<T>(schema: ZodType<T, ZodTypeDef, unknown>, value: unknown): T {
   const result = schema.safeParse(value);
   if (result.success) return result.data;
 

@@ -6,6 +6,8 @@ The project also prepares the data boundary for a hybrid recommender system. Pur
 
 ## Documentation
 
+- [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) — Mermaid diagrams of all current entities,
+  stored fields, relationships, and composite unique keys.
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — system architecture: C4 views, module anatomy, data
   model, runtime flows, the recommendation seam, the target ML topology, and ADRs.
 - [`docs/ML_STACK.md`](docs/ML_STACK.md) — the machine-learning stack for Association Rules Mining,
@@ -65,7 +67,8 @@ npm run db:start  # start PostgreSQL
 npm run db:migrate # apply pending Flyway migrations
 npm run db:info    # inspect Flyway migration status
 npm run db:stop   # stop containers
-npm run db:test   # test V1-V5 and Olist assertions in an isolated temporary database
+npm run db:test   # test all migrations and Olist assertions in an isolated temporary database
+npm run test:catalog -w server # read-only API checks; requires running database and API
 ```
 
 ## Backend structure
@@ -88,7 +91,7 @@ server/
 
 When schema or seed data changes, add a new migration; do not edit a migration that has already been applied. Examples: `V3__add_customer_profiles.sql` or `V4__seed_more_orders.sql`.
 
-Flyway remains the only schema migration tool. After applying a migration that changes tables or columns, update `server/prisma/schema.prisma` and run `npm run prisma:generate -w server`. The application repositories use Prisma Client exclusively and contain no raw SQL.
+Flyway remains the only schema migration tool. After applying a migration that changes tables or columns, update `server/prisma/schema.prisma` and run `npm run prisma:generate -w server`. Repositories use Prisma Client; the Admin dashboard uses parameterized Prisma SQL queries to aggregate historical records inside PostgreSQL.
 
 The backend compiles with TypeScript `strict` mode. Zod validates untrusted request bodies and query parameters at runtime, DTO interfaces define service/controller contracts, and mappers keep Prisma-specific `Decimal`, `BigInt`, relations, and column naming out of the API layer.
 
@@ -103,8 +106,10 @@ are modeled in Prisma and SQL without adding application screens or workflows.
 Olist provides numeric title/description lengths rather than authentic product text. Only 3.31%
 of delivered orders contain multiple distinct products, so the proposed 1% product-level support
 threshold must be revisited. Generated product copy is demo data, not an authentic embedding corpus.
-The current application retains its original catalog-loading and analytics assumptions; historical
-date/currency/status-aware analytics and pagination are separate future work.
+Shop and Admin catalogs use server-side pagination (24 products per page), filtering and stable
+sorting. Admin aggregates run in PostgreSQL instead of loading all order items into the API.
+See [`docs/CATALOG_PERFORMANCE.md`](docs/CATALOG_PERFORMANCE.md) for the changes and validation.
+Historical date/currency/status-aware reporting remains separate future work.
 
 | Table | Future use |
 | --- | --- |
@@ -122,15 +127,19 @@ Suggested future pipeline:
 
 ## API map
 
-- `GET /api/products?search=&category=`
+- `GET /api/products?search=&category=&sort=featured&page=1&pageSize=24`
 - `GET /api/categories`
 - `GET /api/recommendations?productId=&limit=4`
 - `POST /api/events`
 - `POST /api/orders`
 - `GET /api/admin/overview`
-- `GET /api/admin/products`
+- `GET /api/admin/products?search=&category=&page=1&pageSize=24`
 - `POST /api/admin/products`
 - `PUT /api/admin/products/:id`
 - `DELETE /api/admin/products/:id` (soft delete)
+
+Both catalog endpoints return `{ items, total, page, pageSize, totalPages }`. `pageSize` is capped
+at 60. Storefront sorts are `featured`, `rating`, `low`, and `high`; Admin defaults to recently
+updated products. Filters and counts apply to the full active catalog, not just the visible page.
 
 This is a course prototype, so the admin route has no authentication and checkout intentionally collects no payment information. Add authentication, authorization, migrations, validation and a payment provider before considering production use.

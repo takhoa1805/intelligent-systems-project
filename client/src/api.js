@@ -11,14 +11,14 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  products: (params = {}) => request(`/products?${new URLSearchParams(params)}`),
+  products: (params = {}, options = {}) => request(`/products?${new URLSearchParams(params)}`, options),
   product: (id) => request(`/products/${id}`),
   categories: () => request('/categories'),
   recommendations: (productId, limit = 4) => request(`/recommendations?${new URLSearchParams({ productId: productId || '', limit })}`),
   checkout: (payload) => request('/orders', { method: 'POST', body: JSON.stringify(payload) }),
   event: (payload) => request('/events', { method: 'POST', body: JSON.stringify(payload) }),
-  adminOverview: () => request('/admin/overview'),
-  adminProducts: () => request('/admin/products'),
+  adminOverview: (options = {}) => request('/admin/overview', options),
+  adminProducts: (params = {}, options = {}) => request(`/admin/products?${new URLSearchParams(params)}`, options),
   addProduct: (payload) => request('/admin/products', { method: 'POST', body: JSON.stringify(payload) }),
   updateProduct: (id, payload) => request(`/admin/products/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
   removeProduct: (id) => request(`/admin/products/${id}`, { method: 'DELETE' }),

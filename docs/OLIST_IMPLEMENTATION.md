@@ -59,7 +59,7 @@ Prisma validation/generation commands need `DATABASE_URL` available in the envir
 `server/db/tests/olist_import_assertions.sql` is a database integration check for the fixed source snapshot. It verifies entity counts, generated-field bounds, original amounts, statuses/dates, customer normalization, payment/review multiplicity, missing data, source-key constraints, and native insert compatibility. Its fixture writes are rolled back. Run it against an isolated database after V1–V5, not a development database with unrelated records.
 
 With Docker running, `npm run db:test` creates a separate temporary PostgreSQL 16/Flyway test
-project, executes V1–V5 and the assertions, and cleans up that project's containers afterward.
+project, executes all available migrations and the assertions, and cleans up that project's containers afterward.
 It publishes no ports and does not mount the development database volume.
 
 During implementation, Docker's daemon was unavailable. All five migrations and all nine full
@@ -70,4 +70,11 @@ migrated schema; Prisma validation/generation and the complete application build
 The Docker Compose configurations were validated, but the PostgreSQL 16/Flyway container
 test itself remains to be run when Docker is available.
 
-Existing catalog, checkout, analytics, and recommendation views are intentionally unchanged. They still use the original presentation assumptions: all-product loading, `$` formatting, email-based customer counts, the seven-day window, and `cancelled` filtering. The model/import preserves Olist facts; these screens are not yet an accurate historical marketplace dashboard. Frontend pagination, currency-aware display, historical analytics and new-entity screens remain separate future work.
+The initial model/import kept application views unchanged. The subsequent catalog performance update described below adds pagination, bounded queries and customer-ID counting. The screens still use `$` formatting, the current seven-day window and original status filtering, so currency-aware display and historical reporting remain separate work. No new marketplace entity screens were added.
+
+## Catalog performance after import
+
+The subsequent performance update adds V6/V7 query indexes, server-side Shop and Admin
+pagination, bounded recommendation retrieval, and database-side Admin aggregates. Existing
+marketplace entities still have no new application workflows. See [CATALOG_PERFORMANCE.md](./CATALOG_PERFORMANCE.md)
+for the current catalog API contract and checks.

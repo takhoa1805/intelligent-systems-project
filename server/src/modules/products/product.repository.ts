@@ -1,36 +1,45 @@
 import { db } from '../../config/database.js';
 import { toProductDto } from '../../shared/mappers/product.mapper.js';
-import type { ProductCreateRecord, ProductDto, ProductFilterDto, ProductWriteDto } from './product.dto.js';
+import type { Prisma } from '@prisma/client';
+import type { ProductCreateRecord, ProductDto, ProductFilterDto, ProductPageDto, ProductWriteDto } from './product.dto.js';
 
 const withCategory = { category: true };
 
-export async function findProducts({ search, category, featured }: ProductFilterDto): Promise<ProductDto[]> {
-  const products = await db.product.findMany({
-    where: {
-      active: true,
-      ...(category && category !== 'all' ? { category: { slug: category } } : {}),
-      ...(featured ? { featured: true } : {}),
-      ...(search ? {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-          { tags: { has: search.toLowerCase() } },
-        ],
-      } : {}),
-    },
-    include: withCategory,
-    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
-  });
-  return products.map(toProductDto);
+export async function findProducts({ search, category, featured, page, pageSize, sort }: ProductFilterDto, admin = false): Promise<ProductPageDto> {
+  const where: Prisma.ProductWhereInput = {
+    active: true,
+    ...(category && category !== 'all' ? { category: { slug: category } } : {}),
+    ...(featured ? { featured: true } : {}),
+    ...(search ? {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { tags: { has: search.toLowerCase() } },
+      ],
+    } : {}),
+  };
+  const orderBy: Prisma.ProductOrderByWithRelationInput[] = sort === 'low'
+    ? [{ price: 'asc' }, { id: 'asc' }]
+    : sort === 'high' ? [{ price: 'desc' }, { id: 'desc' }]
+    : sort === 'rating' ? [{ rating: 'desc' }, { id: 'asc' }]
+    : admin ? [{ updatedAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }]
+    : [{ featured: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }];
+  const [products, total] = await db.$transaction([
+    db.product.findMany({
+      where, include: withCategory, orderBy,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    db.product.count({ where }),
+  ]);
+  return {
+    items: products.map(toProductDto), total, page, pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
 }
 
-export async function findAdminProducts(): Promise<ProductDto[]> {
-  const products = await db.product.findMany({
-    where: { active: true },
-    include: withCategory,
-    orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
-  });
-  return products.map(toProductDto);
+export function findAdminProducts(filters: ProductFilterDto): Promise<ProductPageDto> {
+  return findProducts(filters, true);
 }
 
 export async function findProductById(id: number): Promise<ProductDto | null> {

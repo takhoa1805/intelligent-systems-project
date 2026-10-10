@@ -10,7 +10,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
-    "prisma:validate": "prisma validate"
+    "prisma:validate": "prisma validate",
+    "test:catalog": "tsx --test tests/catalog.integration.test.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",

@@ -6,16 +6,17 @@ import {
   parseProductId,
   parseProductWriteDto,
   type ProductDto,
+  type ProductPageDto,
   type ProductQueryDto,
   type ProductWriteDto,
 } from './product.dto.js';
 
-export function listProducts(filters: ProductQueryDto): Promise<ProductDto[]> {
+export function listProducts(filters: ProductQueryDto): Promise<ProductPageDto> {
   return repository.findProducts(parseProductFilters(filters));
 }
 
-export function listAdminProducts(): Promise<ProductDto[]> {
-  return repository.findAdminProducts();
+export function listAdminProducts(filters: ProductQueryDto): Promise<ProductPageDto> {
+  return repository.findAdminProducts(parseProductFilters(filters));
 }
 
 export async function getProduct(id: unknown): Promise<ProductDto> {

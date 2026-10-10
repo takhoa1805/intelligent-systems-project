@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import CartDrawer from './components/CartDrawer';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
-import Admin from './pages/Admin';
 import ProductDetail from './pages/ProductDetail';
 import { api } from './api';
 import { mockCategories, mockProducts } from './mockData';
+
+const Admin = lazy(() => import('./pages/Admin'));
 
 const sessionId = localStorage.getItem('signal-session') || crypto.randomUUID();
 localStorage.setItem('signal-session', sessionId);
@@ -25,7 +26,7 @@ export default function App() {
   const loadProducts = async () => {
     try {
       const [items, cats] = await Promise.all([api.products(), api.categories()]);
-      setProducts(items); setCategories(cats); setOffline(false);
+      setProducts(items.items); setCategories(cats); setOffline(false);
     } catch {
       setProducts(mockProducts); setCategories(mockCategories); setOffline(true);
     } finally { setLoading(false); }
@@ -54,9 +55,9 @@ export default function App() {
     {offline && <div className="demo-banner">Preview mode — start PostgreSQL and the API to enable saved orders and live analytics.</div>}
     <Routes>
       <Route path="/" element={<Home products={products} loading={loading} addToCart={addToCart} />} />
-      <Route path="/shop" element={<Shop products={products} categories={categories} loading={loading} addToCart={addToCart} />} />
+      <Route path="/shop" element={<Shop products={products} categories={categories} loading={loading} addToCart={addToCart} offline={offline} />} />
       <Route path="/products/:id" element={<ProductDetail products={products} addToCart={addToCart} offline={offline} />} />
-      <Route path="/admin" element={<Admin categories={categories} offline={offline} onProductsChanged={loadProducts} />} />
+      <Route path="/admin" element={<Suspense fallback={<main className="admin-page" role="status">Loading dashboard…</main>}><Admin categories={categories} offline={offline} onProductsChanged={loadProducts} /></Suspense>} />
     </Routes>
     <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} cart={cart} products={products} recommendationAnchor={recommendationAnchor} addToCart={addToCart} updateQuantity={updateQuantity} clearCart={() => setCart([])} offline={offline} />
   </>;

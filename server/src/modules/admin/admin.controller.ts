@@ -7,7 +7,7 @@ import {
 } from '../products/product.service.js';
 import type { Request, Response } from 'express';
 import type { AdminOverviewDto } from './admin.dto.js';
-import type { ProductDto } from '../products/product.dto.js';
+import type { ProductDto, ProductPageDto, ProductQueryDto } from '../products/product.dto.js';
 
 export async function overview(_req: Request, res: Response<AdminOverviewDto>): Promise<void> {
   res.json(await getOverview());
@@ -17,8 +17,11 @@ export async function createProductForAdmin(req: Request, res: Response<ProductD
   res.status(201).json(await createProduct(req.body));
 }
 
-export async function products(_req: Request, res: Response<ProductDto[]>): Promise<void> {
-  res.json(await listAdminProducts());
+export async function products(
+  req: Request<Record<string, never>, ProductPageDto, unknown, ProductQueryDto>,
+  res: Response<ProductPageDto>,
+): Promise<void> {
+  res.json(await listAdminProducts(req.query));
 }
 
 export async function updateProductForAdmin(req: Request, res: Response<ProductDto>): Promise<void> {

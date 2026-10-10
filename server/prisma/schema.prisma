@@ -116,6 +116,12 @@ model Product {
   @@unique([dataSource, sourceId], map: "uq_products_source_id")
   @@index([categoryId], map: "idx_products_category")
   @@index([active, updatedAt(sort: Desc)], map: "idx_products_active_updated_at")
+  @@index([active, featured(sort: Desc), createdAt(sort: Desc), id(sort: Desc)], map: "idx_products_active_featured_created_id")
+  @@index([active, price, id], map: "idx_products_active_price_id")
+  @@index([active, featured(sort: Desc), rating(sort: Desc), id], map: "idx_products_active_featured_rating_id")
+  @@index([categoryId, active, rating(sort: Desc), id], map: "idx_products_category_active_rating_id")
+  @@index([active, rating(sort: Desc), id], map: "idx_products_active_rating_id")
+  @@index([active, updatedAt(sort: Desc), createdAt(sort: Desc), id(sort: Desc)], map: "idx_products_active_updated_created_id")
   @@map("products")
 }
 
@@ -149,6 +155,7 @@ model Order {
 
   @@unique([dataSource, sourceId], map: "uq_orders_source_id")
   @@index([createdAt], map: "idx_orders_created_at")
+  @@index([createdAt(sort: Desc), id(sort: Desc)], map: "idx_orders_created_id")
   @@index([customerId], map: "idx_orders_customer")
   @@index([dataSource, status, purchasedAt], map: "idx_orders_source_status_purchase")
   @@map("orders")

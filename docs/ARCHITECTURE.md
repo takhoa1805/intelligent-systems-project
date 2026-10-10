@@ -272,6 +272,9 @@ strategy served any given shelf without opening the network tab.
 
 ### 6.1 Entity-relationship model
 
+The complete current schema, including the Olist entities, is diagrammed in
+[`DATA_MODEL.md`](./DATA_MODEL.md). The diagram below shows the original storefront core.
+
 ```mermaid
 erDiagram
     CATEGORIES  ||--o{ PRODUCTS    : classifies
@@ -420,9 +423,10 @@ The entire "model" is three constants applied in `recommendation.repository.ts`:
 | Otherwise, flagged `featured` | 0.78 |
 | Everything else | 0.62 |
 
-Candidates are then sorted by score, tie-broken by `rating`, and truncated to `limit`. It fetches
-**all active products** and ranks them in memory. At nine products that is free; at ten thousand it
-is a full table scan per request, which is precisely why the TO-BE design is two-stage (§10.2).
+Candidates are sorted by score, then `rating`, then product ID, and truncated to `limit`.
+The current repository issues bounded, indexed same-category and fallback queries, fetching
+at most twice the requested limit. See [CATALOG_PERFORMANCE.md](./CATALOG_PERFORMANCE.md)
+for catalog pagination, database-side Admin aggregates and measurements after the Olist import.
 
 Three properties make this a good placeholder rather than dead weight:
 
@@ -583,7 +587,7 @@ untyped at the boundary no matter how strict the compiler is.
 | Security headers (helmet) | ✅ |
 | CORS restricted to the configured client origin | ✅ |
 | JSON body cap (1 MB) | ✅ |
-| SQL injection | ✅ N/A — Prisma parameterises; zero raw SQL in `src/` today |
+| SQL injection | ✅ Prisma parameterises ORM queries and tagged SQL aggregates; no user-built SQL strings |
 | Input validation on every write | ✅ Zod |
 | **Admin authentication** | ❌ **absent — the admin routes are open** |
 | Rate limiting | ❌ absent |
@@ -863,14 +867,14 @@ request path.
 
 | Component | Fine up to | Breaks because |
 | --- | --- | --- |
-| Placeholder recommender | ~10³ products | Full table scan plus an in-memory sort on every request |
+| Placeholder recommender | Validated at ~33,000 products | Bounded indexed queries; remains a placeholder ranking strategy |
 | Lexical product search | ~10⁴ products | Substring matching is a sequential scan; needs a trigram or full-text index |
-| Admin overview | ~10⁵ order items | Loads every order item into Node and aggregates in a loop; should be a SQL aggregation or a materialised view |
+| Admin overview | Validated at ~113,000 order items | Aggregates inside PostgreSQL; much larger history may justify materialised summaries |
 | Rule lookup (TO-BE) | ~10⁶ rules | A GIN index on the antecedent keeps this an index probe |
 | pgvector HNSW search (TO-BE) | ~10⁶ vectors | Beyond that, a dedicated vector store earns its keep |
 
-None of these are urgent at nine products — but naming the ceiling, and the reason, is what separates
-an architecture document from a description.
+The Olist import has already required catalog pagination and database-side aggregation.
+The figures above describe measured scale or future estimates, not hard capacity guarantees.
 
 ---
 

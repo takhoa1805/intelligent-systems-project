@@ -40,12 +40,26 @@ export interface ProductFilterDto {
   search: string;
   category: string;
   featured: boolean;
+  page: number;
+  pageSize: number;
+  sort: 'featured' | 'low' | 'high' | 'rating';
+}
+
+export interface ProductPageDto {
+  items: ProductDto[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 export interface ProductQueryDto {
   search?: string;
   category?: string;
   featured?: string;
+  page?: string;
+  pageSize?: string;
+  sort?: string;
 }
 
 export interface IdParamsDto {
@@ -71,10 +85,15 @@ export function parseProductId(value: unknown): number {
   return parseDto(z.coerce.number().int().positive(), value);
 }
 
+const productFilterSchema = z.object({
+  search: z.string().trim().max(200).default(''),
+  category: z.string().trim().max(80).default(''),
+  featured: z.enum(['true', 'false']).optional().transform((value) => value === 'true'),
+  page: z.coerce.number().int().min(1).max(100000).default(1),
+  pageSize: z.coerce.number().int().min(1).max(60).default(24),
+  sort: z.enum(['featured', 'low', 'high', 'rating']).default('featured'),
+});
+
 export function parseProductFilters(query: ProductQueryDto): ProductFilterDto {
-  return {
-    search: String(query.search || '').trim(),
-    category: String(query.category || '').trim(),
-    featured: query.featured === 'true',
-  };
+  return parseDto(productFilterSchema, query);
 }
