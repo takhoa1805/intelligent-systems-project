@@ -355,7 +355,12 @@ Change the schema
 
 Current migrations: `V1__create_core_schema.sql` (5 tables, 4 indexes), `V2__seed_demo_catalog_and_orders.sql`
 (5 categories, 9 products, 3 orders), `V3__track_product_updates.sql` (adds `updated_at` and a
-composite index). §10.5 lists the migrations the ML work will add.
+composite index), `V4__expand_olist_data_model.sql` (marketplace entities and source attributes), and
+`V5__import_olist_dataset.sql` (all nine local CSVs and the seeded synthetic product catalog).
+The earlier five-table diagram describes the original storefront core. The expanded entities,
+identity rules, provenance, and migration behavior are documented in
+[`OLIST_IMPLEMENTATION.md`](./OLIST_IMPLEMENTATION.md). §10.5 is an earlier ML roadmap; its
+example migration numbers must be advanced beyond V5 before implementation.
 
 ### 6.4 Mapping the data model to the three topics
 
@@ -369,12 +374,12 @@ composite index). §10.5 lists the migrations the ML work will add.
 
 ### 6.5 Known dataset limitation
 
-The seed contains **3 orders of 2 items each** (phone + charger, headphones + speaker, power bank +
-case). That is enough to make one rule *printable* and nowhere near enough to make one *credible*:
-with three transactions the minimum non-zero support is 33%, and every co-occurrence has confidence
-1.0. The lab therefore requires either a generated basket dataset or a public one. This is not a
-defect to hide — it is the first paragraph of the "Dataset" section of the report, and
-`ML_STACK.md` §2.5 gives both options with the trade-offs.
+The original demo has **3 two-item orders**. V5 adds 99,441 Olist orders, including 96,478
+delivered orders. Only 3,197 delivered orders contain more than one distinct product, and the most
+frequent product pair appears 34 times. A 1% product-level support threshold yields no rules.
+Olist also lacks actual product title/description text: imported catalog copy is generated and
+marked synthetic. These limitations require revisiting the planned ARM thresholds and embedding
+corpus; see [`OLIST_DATA_MODEL_ANALYSIS.md`](./OLIST_DATA_MODEL_ANALYSIS.md), section 9.
 
 ---
 

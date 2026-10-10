@@ -10,7 +10,8 @@
     "db:start": "docker compose up -d --wait db && docker compose run --rm migrate",
     "db:migrate": "docker compose run --rm migrate",
     "db:info": "docker compose run --rm migrate info",
-    "db:stop": "docker compose down"
+    "db:stop": "docker compose down",
+    "db:test": "sh server/db/tests/run-olist-import-test.sh"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

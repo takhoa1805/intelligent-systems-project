@@ -11,6 +11,11 @@ The project also prepares the data boundary for a hybrid recommender system. Pur
 - [`docs/ML_STACK.md`](docs/ML_STACK.md) — the machine-learning stack for Association Rules Mining,
   Recommender Systems and Word Embedding: libraries, algorithms, hyper-parameters, published
   artefacts, evaluation, and the four-week delivery plan.
+- [`docs/OLIST_IMPLEMENTATION.md`](docs/OLIST_IMPLEMENTATION.md) — dataset entities, generated
+  catalog rules, import migrations, source provenance, and validation.
+- [`docs/OLIST_DATA_MODEL_ANALYSIS.md`](docs/OLIST_DATA_MODEL_ANALYSIS.md) — the original dataset
+  assessment and ML limitations; [`docs/OLIST_DATA_PROFILE.json`](docs/OLIST_DATA_PROFILE.json)
+  contains parsed counts and source-file checksums.
 
 ## Assignment alignment
 
@@ -46,7 +51,7 @@ Open:
 - Admin dashboard: http://localhost:5173/admin
 - API health: http://localhost:4000/api/health
 
-`npm run db:start` starts PostgreSQL, waits for it to become healthy, and applies every pending Flyway migration. To recreate the sample data from scratch, run `docker compose down -v` and then `npm run db:start` (this permanently removes the local database volume).
+`npm run db:start` starts PostgreSQL, waits for it to become healthy, and applies every pending Flyway migration. V4 adds the Olist marketplace entities; V5 imports all nine CSVs from `dataset/` through a read-only database mount. The first import includes approximately 1.55 million source records and takes longer than the original demo-only startup. Existing databases receive the additive migrations without removing their volume. To recreate all data from scratch, run `docker compose down -v` and then `npm run db:start` (this permanently removes the local database volume).
 
 If the API is not running, the storefront automatically enters preview mode with a local mock catalog. Orders and added products are not persisted in preview mode.
 
@@ -60,6 +65,7 @@ npm run db:start  # start PostgreSQL
 npm run db:migrate # apply pending Flyway migrations
 npm run db:info    # inspect Flyway migration status
 npm run db:stop   # stop containers
+npm run db:test   # test V1-V5 and Olist assertions in an isolated temporary database
 ```
 
 ## Backend structure
@@ -87,6 +93,18 @@ Flyway remains the only schema migration tool. After applying a migration that c
 The backend compiles with TypeScript `strict` mode. Zod validates untrusted request bodies and query parameters at runtime, DTO interfaces define service/controller contracts, and mappers keep Prisma-specific `Decimal`, `BigInt`, relations, and column naming out of the API layer.
 
 ## Data prepared for the recommender
+
+The Olist import adds 99,441 historical orders and 32,951 products alongside the original demo.
+Imported product copy, current prices, stock and ratings are seeded synthetic catalog values;
+historical item prices, freight, statuses, payments, reviews and product attributes are preserved.
+Imported customers use their persistent source ID as both ID and name. New marketplace entities
+are modeled in Prisma and SQL without adding application screens or workflows.
+
+Olist provides numeric title/description lengths rather than authentic product text. Only 3.31%
+of delivered orders contain multiple distinct products, so the proposed 1% product-level support
+threshold must be revisited. Generated product copy is demo data, not an authentic embedding corpus.
+The current application retains its original catalog-loading and analytics assumptions; historical
+date/currency/status-aware analytics and pagination are separate future work.
 
 | Table | Future use |
 | --- | --- |

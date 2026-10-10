@@ -11,6 +11,13 @@
 > Target: the lab deliverable for *Exploring Intelligent Systems, Semester II-2026*, built the way a
 > real e-commerce recommender is built rather than as three disconnected notebooks.
 
+The Olist data layer is now defined in [`OLIST_IMPLEMENTATION.md`](./OLIST_IMPLEMENTATION.md).
+This ML specification predates that import: its nine-product corpus, synthetic-basket roadmap,
+1% support default, cancellation filter and example migration numbers need revision before ML
+implementation. Olist product copy is generated demo data, and only 3.31% of delivered baskets
+contain multiple distinct products. See [`OLIST_DATA_MODEL_ANALYSIS.md`](./OLIST_DATA_MODEL_ANALYSIS.md)
+for the measured limits and proposed experiments. No ML pipeline is implemented by the data-layer changes.
+
 ---
 
 ## Table of contents
