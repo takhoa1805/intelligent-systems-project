@@ -26,7 +26,7 @@ export default function CartDrawer({ open, onClose, cart, products, recommendati
       {stage === 'cart' && <>
         <div className="cart-list">
           {!cart.length && <div className="empty-state"><ShoppingBag size={42} /><h3>Your bag is taking a break.</h3><p>Add something useful and it will show up here.</p></div>}
-          {cart.map((item) => <div className="cart-item" key={item.id}><ProductVisual product={item} /><div><h4>{item.name}</h4><p>${Number(item.price).toFixed(0)}</p><div className="quantity"><button onClick={() => updateQuantity(item.id, item.quantity - 1)}><Minus size={13} /></button><span>{item.quantity}</span><button onClick={() => updateQuantity(item.id, item.quantity + 1)}><Plus size={13} /></button></div></div><strong>${(item.price * item.quantity).toFixed(0)}</strong></div>)}
+          {cart.map((item) => <div className="cart-item" key={item.id}><ProductVisual product={item} /><div><h4>{item.name}</h4><p>${Number(item.price).toFixed(0)}</p><div className="quantity"><button aria-label={`Decrease ${item.name} quantity`} onClick={() => updateQuantity(item.id, item.quantity - 1)}><Minus size={13} /></button><span>{item.quantity}</span><button aria-label={`Increase ${item.name} quantity`} onClick={() => updateQuantity(item.id, item.quantity + 1)}><Plus size={13} /></button></div></div><strong>${(item.price * item.quantity).toFixed(0)}</strong></div>)}
           {!!cart.length && <CartRecommendations anchorProductId={recommendationAnchor} cart={cart} products={products} addToCart={addToCart} offline={offline} />}
         </div>
         {!!cart.length && <div className="drawer-foot"><div className="total-row"><span>Subtotal</span><strong>${total.toFixed(2)}</strong></div><p>Shipping and tax calculated at the next step.</p><button className="primary wide" onClick={() => setStage('checkout')}>Continue to checkout <ChevronRight size={18} /></button></div>}
@@ -36,12 +36,12 @@ export default function CartDrawer({ open, onClose, cart, products, recommendati
         <label>Full name<input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Alex Morgan" /></label>
         <label>Email address<input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="alex@example.com" /></label>
         <CartRecommendations anchorProductId={recommendationAnchor} cart={cart} products={products} addToCart={addToCart} offline={offline} />
-        <div className="checkout-note"><strong>Demo checkout</strong><span>No payment details are collected. Submitting creates a sample order for analytics.</span></div>
+        <div className="checkout-note"><strong>Demo checkout</strong><span>{offline ? 'Preview only. No payment is collected and this sample order is not saved.' : 'No payment details are collected. Submitting creates a sample order for analytics.'}</span></div>
         {error && <p className="form-error">{error}</p>}
         <div className="total-row"><span>Total</span><strong>${total.toFixed(2)}</strong></div>
         <button className="primary wide">Place demo order <ChevronRight size={18} /></button>
       </form>}
-      {stage === 'done' && <div className="success-state"><span><Check size={30} /></span><h2>Nice choice.</h2><p>Your demo order <strong>{order?.order_number}</strong> is confirmed. It now contributes to the admin analytics and future recommendation dataset.</p><button className="primary" onClick={close}>Keep exploring</button></div>}
+      {stage === 'done' && <div className="success-state"><span><Check size={30} /></span><h2>Nice choice.</h2><p>Your demo order <strong>{order?.order_number}</strong> is confirmed.</p><strong className="confirmation-total">${Number(order?.total || 0).toFixed(2)}</strong><p>{offline ? 'This is a preview confirmation. Stored orders and sales totals are unchanged.' : 'It now contributes to the admin analytics and future recommendation dataset.'}</p><button className="primary" onClick={close}>Keep exploring</button></div>}
     </aside>
   </div>;
 }

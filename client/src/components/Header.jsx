@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Search, ShoppingBag, Menu, X, Zap } from 'lucide-react';
 
-export default function Header({ cartCount, onCart, onSearch }) {
+export default function Header({ reportPreview, cartCount, onCart, onSearch }) {
   const [search, setSearch] = useState('');
   const [menu, setMenu] = useState(false);
   const location = useLocation();
@@ -14,9 +14,11 @@ export default function Header({ cartCount, onCart, onSearch }) {
       <NavLink to="/" onClick={() => setMenu(false)}>Discover</NavLink>
       <NavLink to="/shop" onClick={() => setMenu(false)}>Shop</NavLink>
       <NavLink to="/admin" onClick={() => setMenu(false)}>Admin</NavLink>
+      <NavLink to="/lab" onClick={() => setMenu(false)}>Data Science</NavLink>
     </nav>
     <div className="header-actions">
-      {location.pathname !== '/admin' && <form className="header-search" onSubmit={submit}>
+      <a className={reportPreview ? "preview-toggle enabled" : "preview-toggle"} href={`${location.pathname.startsWith("/admin/orders/") ? "/admin" : location.pathname}?preview=${reportPreview ? "0" : "1"}`} >{reportPreview ? "Exit preview" : "Report preview"}</a>
+      {!location.pathname.startsWith('/admin') && location.pathname !== '/lab' && <form className="header-search" onSubmit={submit}>
         <Search size={17} /><input aria-label="Search products" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search gear" />
       </form>}
       <button className="icon-button cart-button" aria-label="Open cart" onClick={onCart}><ShoppingBag size={20} />{cartCount > 0 && <span>{cartCount}</span>}</button>

@@ -4,7 +4,7 @@ import ProductCard from '../components/ProductCard';
 import ProductVisual from '../components/ProductVisual';
 import RecommendationShelf from '../components/RecommendationShelf';
 
-export default function Home({ products, loading, addToCart }) {
+export default function Home({ modelVersion, products, loading, addToCart }) {
   const hero = products[0];
   const featured = products.filter((p) => p.featured).slice(0, 3);
   return <main>
@@ -36,7 +36,7 @@ export default function Home({ products, loading, addToCart }) {
       </div>
     </section>
 
-    <div id="recommended"><RecommendationShelf products={products} onAdd={addToCart} /></div>
+    <div id="recommended"><RecommendationShelf modelVersion={modelVersion} products={products} onAdd={addToCart} /></div>
     <footer><div className="brand">SIGNAL</div><p>Useful technology, thoughtfully connected.</p><span>© 2026 Signal Shop · Intelligent Systems Lab</span></footer>
   </main>;
 }

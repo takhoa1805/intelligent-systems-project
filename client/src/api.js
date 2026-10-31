@@ -18,6 +18,8 @@ export const api = {
   checkout: (payload) => request('/orders', { method: 'POST', body: JSON.stringify(payload) }),
   event: (payload) => request('/events', { method: 'POST', body: JSON.stringify(payload) }),
   adminOverview: (options = {}) => request('/admin/overview', options),
+  adminOrders: (params = {}, options = {}) => request(`/admin/orders?${new URLSearchParams(params)}`, options),
+  adminOrder: (id) => request(`/admin/orders/${encodeURIComponent(id)}`),
   adminProducts: (params = {}, options = {}) => request(`/admin/products?${new URLSearchParams(params)}`, options),
   addProduct: (payload) => request('/admin/products', { method: 'POST', body: JSON.stringify(payload) }),
   updateProduct: (id, payload) => request(`/admin/products/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),

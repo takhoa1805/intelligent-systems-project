@@ -2,7 +2,15 @@
 
 Signal Shop is a full-stack digital electronics storefront built for the Intelligent Systems course lab. Customers can browse and search products, open detailed product pages, receive contextual recommendations, manage a persistent cart, and complete a demo checkout. Administrators can view sales analytics and create, edit, or soft-delete catalog products.
 
-The project also prepares the data boundary for a hybrid recommender system. Purchases are stored as transaction baskets for Association Rule Mining (ARM), product text and tags are available for word embeddings, and interaction events are captured for later ranking/evaluation.
+The project also prepares the data boundary for a hybrid recommender system. Purchases are stored as transaction baskets for Association Rule Mining (ARM), product text and tags are available for word embeddings, and the prototype displays curated recommendation examples while the learned pipeline is pending. Interaction histories are outside the report scope.
+
+## Report mockup preview
+
+Open [Report preview](http://localhost:5173/admin?preview=1) for consistent sample
+sales/orders, explained product and basket recommendations, order inspection and
+an interactive Data Science workspace. AI outputs and experiment metrics are
+illustrative. The header's **Exit preview** returns to live data. See
+[the capture guide](docs/MOCKUP_GUIDE.md) for screen URLs and prototype scope.
 
 ## Documentation
 
@@ -26,7 +34,7 @@ The assignment requires two essays (minimum 1,000 words each), one lab containin
 1. **Association Rule Mining** — learn frequently co-purchased items and generate explainable “bought together” candidates.
 2. **Word Embeddings** — rank semantically similar products from names, descriptions, categories and tags.
 
-The current `/api/recommendations` route is explicitly a placeholder. Replace its ranking query with the trained hybrid pipeline later; the React interface does not need to change.
+The current `/api/recommendations` route remains a placeholder. The screenshot prototype uses client-side curated recommendations in `client/src/prototype/data.js`; connect the recommendation components to the trained API when the hybrid pipeline is implemented.
 
 ## Stack
 
@@ -115,15 +123,15 @@ Historical date/currency/status-aware reporting remains separate future work.
 | --- | --- |
 | `orders`, `order_items` | Market baskets for Apriori / FP-Growth rules |
 | `products` | Embedding corpus: name, description, category and tags |
-| `user_events` | Views, cart additions and recommendation clicks for offline evaluation |
+| `user_events` | Legacy schema retained; the storefront no longer writes interaction events |
 
 Suggested future pipeline:
 
 1. Export completed order baskets and learn rules using support, confidence and lift.
 2. Encode product text using Word2Vec, FastText or a sentence-transformer.
 3. Retrieve candidates from both models, normalize their scores, and blend them.
-4. Log the strategy and rank in `user_events.metadata`.
-5. Evaluate precision@K, recall@K, coverage, click-through rate and add-to-cart rate.
+4. Evaluate basket completion with precision@K, recall@K and coverage against a popularity baseline.
+5. Review similar-product relevance separately against a category baseline and retain the model/dataset versions.
 
 ## API map
 
@@ -133,6 +141,8 @@ Suggested future pipeline:
 - `POST /api/events`
 - `POST /api/orders`
 - `GET /api/admin/overview`
+- `GET /api/admin/orders?search=&status=all&page=1&pageSize=8`
+- `GET /api/admin/orders/:id`
 - `GET /api/admin/products?search=&category=&page=1&pageSize=24`
 - `POST /api/admin/products`
 - `PUT /api/admin/products/:id`

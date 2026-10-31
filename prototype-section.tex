@@ -1,0 +1,405 @@
+% ---------------------------------------------------------------------
+% Insert before References. Upload the 15 referenced prototype-*.jpg images
+% into figures/. Uses the existing reportimage helper and table packages.
+% ---------------------------------------------------------------------
+\clearpage
+\section{Interactive Prototype and Interface Mockups}
+\label{sec:prototype}
+
+\emph{Signal Shop} demonstrates the buyer, administrator and data-scientist
+interfaces for Section~\ref{sec:fr}. The figures use report-preview mode with a
+curated electronics catalogue and sample orders. Recommendation pairings are
+hardcoded, similar products use category matches, and model values are illustrative.
+
+\subsection{Buyer interface and explained recommendations}
+\label{sec:prototype-buyer}
+
+The buyer flow is \emph{browse or search $\rightarrow$ product details
+$\rightarrow$ recommendations $\rightarrow$ bag $\rightarrow$ checkout
+$\rightarrow$ confirmation}. Table~\ref{tab:prototype-buyer} maps these screens to
+Table~\ref{tab:fr-buyer}.
+
+\begin{table}[H]
+  \centering
+  \caption{Buyer screens and related requirements.}
+  \label{tab:prototype-buyer}
+  \tablestyle
+  \begin{tabularx}{\textwidth}{|L{3.1cm}|>{\RaggedRight\arraybackslash}X|L{2.7cm}|}
+    \hline
+    \rowcolor{headbg}
+    \textbf{Screen} & \textbf{Information and actions} & \textbf{Requirements} \\\hline
+    Storefront and catalogue & Featured products, category browsing and sorting
+      (Figures~\ref{fig:prototype-storefront}--\ref{fig:prototype-catalogue}).
+      & \req{FR-B01} \\\hline
+    Search and details & Keyword results, product attributes, price and stock
+      (Figures~\ref{fig:prototype-search-results}--\ref{fig:prototype-product-detail}).
+      & \req{FR-B01} \\\hline
+    Bought together & Four complementary items with explanations on the product
+      page (Figure~\ref{fig:prototype-together}).
+      & \req{FR-B04}, \req{FR-B06} \\\hline
+    Similar products & Four alternatives below the selected product, retaining
+      search context (Figure~\ref{fig:prototype-similar}).
+      & \req{FR-B05}, \req{FR-B06} \\\hline
+    Bag & Quantities, subtotal and suggestions that exclude selected products
+      (Figure~\ref{fig:prototype-cart}).
+      & \req{FR-B02}, \req{FR-B04}, \req{FR-B06} \\\hline
+    Checkout and confirmation & Minimal contact details and a simulated order
+      number (Figures~\ref{fig:prototype-checkout}--\ref{fig:prototype-confirmation}).
+      & \req{FR-B02} \\\hline
+  \end{tabularx}
+\end{table}
+
+\begin{samepage}
+\subsubsection{Storefront and featured products}
+\label{sec:prototype-storefront-view}
+
+\textbf{Related requirements:} \req{FR-B01}.
+
+Figure~\ref{fig:prototype-storefront} shows the main page and its featured
+product list. Buyers can open an item or continue to the full collection.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-storefront.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Main storefront with featured products and access to the collection.}
+  \label{fig:prototype-storefront}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Product catalogue}
+\label{sec:prototype-catalogue-view}
+
+\textbf{Related requirements:} \req{FR-B01}.
+
+Figure~\ref{fig:prototype-catalogue} shows the collection page with product cards,
+category filters and sorting. Each card provides a route to product details.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-catalogue.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Product catalogue with category and sorting controls.}
+  \label{fig:prototype-catalogue}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Search results}
+\label{sec:prototype-search-view}
+
+\textbf{Related requirements:} \req{FR-B01}.
+
+Searching for ``smartphone'' returns matching products
+(Figure~\ref{fig:prototype-search-results}). The buyer selects Nova X1 to inspect
+its details and recommendations.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-search-results.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Keyword search results for smartphones.}
+  \label{fig:prototype-search-results}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Product details}
+\label{sec:prototype-product-detail-view}
+
+\textbf{Related requirements:} \req{FR-B01}, \req{FR-B02}.
+
+Figure~\ref{fig:prototype-product-detail} shows Nova X1's description, tags, price
+and stock. The search breadcrumb preserves the buyer's location, and
+\emph{Add to bag} starts the purchase flow.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-product-detail.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Selected smartphone with product information and an add-to-bag action.}
+  \label{fig:prototype-product-detail}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Frequently bought together}
+\label{sec:prototype-together-view}
+
+\textbf{Related requirements:} \req{FR-B04}, \req{FR-B06}.
+
+On the product page, selecting \emph{Frequently bought together} reveals four
+complementary items (Figure~\ref{fig:prototype-together}). The selected product
+remains visible above the suggestions and their explanations.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-frequently-bought-together.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Nova X1 product page with explained complementary suggestions.}
+  \label{fig:prototype-together}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Similar products}
+\label{sec:prototype-similar-view}
+
+\textbf{Related requirements:} \req{FR-B05}, \req{FR-B06}.
+
+Selecting \emph{Similar products} displays four smartphone alternatives
+(Figure~\ref{fig:prototype-similar}). Product details, the search breadcrumb,
+prices and explanations make the suggestion context explicit.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-similar-products.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Nova X1 product page with four similar smartphone alternatives.}
+  \label{fig:prototype-similar}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Shopping cart and basket recommendations}
+\label{sec:prototype-cart-view}
+
+\textbf{Related requirements:} \req{FR-B02}, \req{FR-B04}, \req{FR-B06}.
+
+Figure~\ref{fig:prototype-cart} shows the selected phone and charger, quantity
+controls and subtotal. Suggestions use the whole basket and exclude selected
+products; the checkout action continues the flow.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-cart.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Shopping bag with selected products, subtotal and basket suggestions.}
+  \label{fig:prototype-cart}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Checkout}
+\label{sec:prototype-checkout-view}
+
+\textbf{Related requirements:} \req{FR-B02}.
+
+Figure~\ref{fig:prototype-checkout} collects the buyer's name and email and shows
+the order total. The preview explicitly states that no payment is collected and
+the sample order is not saved.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-checkout.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Demo checkout with minimal contact information and order total.}
+  \label{fig:prototype-checkout}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Order confirmation}
+\label{sec:prototype-confirmation-view}
+
+\textbf{Related requirements:} \req{FR-B02}.
+
+Figure~\ref{fig:prototype-confirmation} confirms the demonstration order with an
+order number and total. The bag is cleared; preview confirmation does not change
+stored orders or sales figures.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-order-confirmation.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Simulated order confirmation after completing checkout.}
+  \label{fig:prototype-confirmation}
+\end{figure}
+\end{samepage}
+
+\clearpage
+\subsection{Administration dashboard and order inspection}
+\label{sec:prototype-admin}
+
+Table~\ref{tab:prototype-admin} maps the administration views to
+Table~\ref{tab:fr-admin}. Preview sales use consistent USD amounts and exclude
+canceled orders. Catalogue forms are shown for interface review; saving and
+withdrawal require live mode.
+
+\begin{table}[H]
+  \centering
+  \caption{Administration screens and related requirements.}
+  \label{tab:prototype-admin}
+  \tablestyle
+  \begin{tabularx}{\textwidth}{|L{3.1cm}|>{\RaggedRight\arraybackslash}X|L{2.7cm}|}
+    \hline
+    \rowcolor{headbg}
+    \textbf{Screen} & \textbf{Information and actions} & \textbf{Requirements} \\\hline
+    Catalogue and form & Product list, search, edit/withdraw actions and product
+      data entry (Figures~\ref{fig:prototype-admin-catalogue}--\ref{fig:prototype-product-form}).
+      & \req{FR-A01} \\\hline
+    Sales overview & Revenue, orders, average order value, best sellers and
+      trends with period selection (Figure~\ref{fig:prototype-sales}).
+      & \req{FR-A03} \\\hline
+    Orders & Search, status filtering, pagination and order selection
+      (Figure~\ref{fig:prototype-orders}). & \req{FR-A02} \\\hline
+    Order inspection & Customer, date, status, line items, purchase-time prices
+      and totals (Figure~\ref{fig:prototype-order-inspection}).
+      & \req{FR-A02}, \req{FR-B03} \\\hline
+  \end{tabularx}
+\end{table}
+
+\begin{samepage}
+\subsubsection{Catalogue management}
+\label{sec:prototype-admin-catalogue-view}
+
+\textbf{Related requirements:} \req{FR-A01}.
+
+Figure~\ref{fig:prototype-admin-catalogue} shows the administrator's product
+list with search, category filtering and edit/withdraw actions. Withdrawing a
+product in live mode retains historical order items.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-admin-catalogue.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Administrator product list with catalogue-management actions.}
+  \label{fig:prototype-admin-catalogue}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Product information form}
+\label{sec:prototype-product-form-view}
+
+\textbf{Related requirements:} \req{FR-A01}.
+
+Figure~\ref{fig:prototype-product-form} shows sample data entered for a new
+product. The form covers name, description, price, stock, category and tags;
+editing uses the same fields.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-product-form.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Product-entry form populated with demonstration values.}
+  \label{fig:prototype-product-form}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Sales overview}
+\label{sec:prototype-sales-view}
+
+\textbf{Related requirements:} \req{FR-A03}.
+
+Figure~\ref{fig:prototype-sales} displays sales indicators and trends for the
+selected seven-day or thirty-day period. These are sample-order aggregates;
+warehouse-derived reporting remains future work.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-sales.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Sales overview with period selection and sample indicators.}
+  \label{fig:prototype-sales}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Order browsing and selection}
+\label{sec:prototype-orders-view}
+
+\textbf{Related requirements:} \req{FR-A02}.
+
+Figure~\ref{fig:prototype-orders} lets the administrator search, filter and
+paginate orders. Selecting a record opens the inspection page in
+Section~\ref{sec:prototype-order-inspection-view}.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-orders.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Searchable order records linked to inspection pages.}
+  \label{fig:prototype-orders}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Order inspection}
+\label{sec:prototype-order-inspection-view}
+
+\textbf{Related requirements:} \req{FR-A02}, \req{FR-B03}.
+
+Figure~\ref{fig:prototype-order-inspection} shows a sample order's customer,
+status, purchase date and line items. In live mode, inspection reads stored
+operational records and retains purchase-time names, quantities and prices.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-order-inspection.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Sample order details with purchase-time quantities and prices.}
+  \label{fig:prototype-order-inspection}
+\end{figure}
+\end{samepage}
+
+\clearpage
+\subsection{Data-scientist workspace}
+\label{sec:prototype-scientist}
+
+The retained overview illustrates version traceability. External scripts and
+notebooks remain responsible for the eventual data preparation and training.
+
+\begin{samepage}
+\subsubsection{Dataset and model versions}
+\label{sec:prototype-versions-view}
+
+\textbf{Related requirements:} \req{FR-D02}, \req{FR-D06}, \req{FR-D10}.
+
+Figure~\ref{fig:prototype-data-science} links sample model versions to dataset
+references, preparation times and statuses. It visualises experiment metadata
+without performing dataset extraction or retraining.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-data-science.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Sample dataset and model versions in the data-scientist workspace.}
+  \label{fig:prototype-data-science}
+\end{figure}
+\end{samepage}
+
+\clearpage
+\subsection{Prototype boundary and remaining implementation}
+\label{sec:prototype-boundary}
+
+The requirement links describe interface coverage, not completion of the
+analytical requirements. Dedicated active-model status (\req{FR-A04}) and detailed
+evaluation, publication and activation views (\req{FR-D07}--\req{FR-D09}) are omitted
+from the mockups.
+
+\begin{table}[H]
+  \centering
+  \caption{Prototype scope and remaining work.}
+  \label{tab:prototype-boundary}
+  \tablestyle
+  \begin{tabularx}{\textwidth}{|L{2.6cm}|>{\RaggedRight\arraybackslash}X|>{\RaggedRight\arraybackslash}X|}
+    \hline
+    \rowcolor{headbg}
+    \textbf{Area} & \textbf{Demonstrated} & \textbf{Remaining implementation} \\\hline
+    Recommendations & Explained curated pairings, four alternatives and
+      whole-basket context. & Learned rules, word embeddings and hybrid ranking
+      (\req{FR-B04}, \req{FR-B05}, \req{FR-D03}--\req{FR-D05}). \\\hline
+    Model overview & Sample dataset references, model versions and statuses.
+      & Versioned datasets/artefacts, measured evaluation, publication, activation
+      and role enforcement (\req{FR-D02}, \req{FR-D06}--\req{FR-D10}). \\\hline
+    Purchases and catalogue & Buyer flow, order inspection and catalogue forms.
+      & Preview checkout is not persisted; catalogue saving/withdrawal require
+      live mode. \\\hline
+    Reports and warehouse & Consistent sample sales; no warehouse-management
+      mockup. & ETL, analytical structures and warehouse-derived reports
+      (\req{FR-D01}, \req{FR-W01}--\req{FR-W06}). \\\hline
+  \end{tabularx}
+\end{table}

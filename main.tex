@@ -1,0 +1,1633 @@
+% =====================================================================
+%  Requirements Specification -- Recommender-enabled e-commerce platform
+%  Stakeholders, Functional Requirements and Use-Case Model
+%  Course: Intelligent Systems (CO5119) -- HCMUT
+%  Compile: pdflatex main.tex  (run twice for TOC / cross-references)
+% =====================================================================
+\documentclass[a4paper,12pt]{article}
+
+% ---------- Encoding and fonts ----------
+% Works with pdfLaTeX (T5 encoding, vntex fonts, for the Vietnamese name on the
+% title page) and with XeLaTeX / LuaLaTeX (fontspec, Latin Modern).
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T5]{fontenc}
+\else
+  \usepackage{fontspec}   % defaults to Latin Modern, which covers Vietnamese glyphs
+\fi
+\usepackage[english]{babel}
+
+% ---------- Page layout ----------
+\usepackage[a4paper,top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}
+
+% ---------- Graphics, tables, lists ----------
+\usepackage{graphicx}
+\graphicspath{{./}{figures/}}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+\usepackage[table]{xcolor}
+\usepackage{caption}
+\usepackage{float}
+\captionsetup{font=small,labelfont=bf}
+
+% ---------- Header / footer ----------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Requirements Specification}
+\fancyhead[R]{\small Intelligent Systems (CO5119)}
+\fancyfoot[C]{\small Page \thepage\ of \pageref{LastPage}}
+\setlength{\headheight}{16pt}
+\renewcommand{\headrulewidth}{0.4pt}
+\usepackage{lastpage}
+
+% ---------- Hyperlinks ----------
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={Requirements Specification -- Recommender-enabled e-commerce platform},
+  pdfsubject={Stakeholders, Functional Requirements, Use-Case Model},
+  pdfkeywords={association rule mining, word embedding, recommender system, requirements}
+}
+
+% ---------- Helpers ----------
+\definecolor{accent}{HTML}{E9562A}
+\definecolor{headbg}{HTML}{FFE9D6}
+\definecolor{tableborder}{HTML}{808080}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newlength{\tablecontentwidth}
+\setlength{\tablecontentwidth}{\dimexpr\textwidth-8\tabcolsep-5\arrayrulewidth\relax}
+\newcommand{\tablestyle}{%
+  \small\setstretch{1.05}%
+  \renewcommand{\arraystretch}{1.25}%
+  \setlength{\extrarowheight}{3pt}%
+  \arrayrulecolor{tableborder}%
+}
+\setlength{\LTpre}{0.6\baselineskip}
+\setlength{\LTpost}{0.6\baselineskip}
+\newcommand{\code}[1]{\texttt{#1}}
+\setlength{\emergencystretch}{3em}   % avoid overfull lines around long code identifiers
+\newcommand{\req}[1]{\textsf{\small #1}}
+\newcommand{\inc}{\textit{$\ll$include$\gg$}}
+
+% Preserve the original assets in project builds. Standalone previews that cannot
+% read companion files display an explicit placeholder instead of failing.
+\newcommand{\reportimage}[4][]{%
+  \IfFileExists{#2}{%
+    \includegraphics[#1]{#2}%
+  }{%
+    \PackageWarningNoLine{report}{Image #2 unavailable in this compiler}%
+    \begingroup
+    \setlength{\fboxsep}{6pt}%
+    \fbox{\parbox[c][#4][c]{\dimexpr#3-2\fboxsep-2\fboxrule\relax}{%
+      \centering\small\normalfont
+      \textbf{Image unavailable in this preview}\\[0.6em]
+      \texttt{\detokenize{#2}}\\[0.6em]
+      Compile with the accompanying image files to display the original.%
+    }}%
+    \endgroup
+  }%
+}
+
+% =====================================================================
+\begin{document}
+\hypersetup{pageanchor=false}
+
+% ---------------------------------------------------------------------
+%  Title page
+% ---------------------------------------------------------------------
+\begin{titlepage}
+  \centering
+  \setstretch{1.1}
+  {\normalsize\bfseries VIETNAM NATIONAL UNIVERSITY -- HO CHI MINH CITY\\
+   HO CHI MINH CITY UNIVERSITY OF TECHNOLOGY\\
+   FACULTY OF COMPUTER SCIENCE AND ENGINEERING\par}
+  \vspace{0.4cm}
+  \reportimage[width=0.24\textwidth]{hcmut.png}{0.24\textwidth}{0.24\textwidth}
+  \par\vspace{0.4cm}
+
+  {\LARGE\bfseries REQUIREMENTS SPECIFICATION\par}
+  \vspace{0.6cm}
+  {\large\bfseries SUBJECT: INTELLIGENT SYSTEMS (CO5119)\par}
+  \vspace{0.6cm}
+  \begin{minipage}{0.94\textwidth}
+    \centering\large\bfseries
+    TOPIC: A HYBRID PRODUCT RECOMMENDER FOR AN ELECTRONICS E-COMMERCE
+    PLATFORM USING ASSOCIATION RULE MINING AND WORD EMBEDDINGS\par
+  \end{minipage}\par
+  \vspace{1.2cm}
+
+  {\large Supervisor: \textbf{Assoc.\ Prof.\ Dr.\ Quản Thành Thơ}\par}
+  \vspace{0.6cm}
+  {\large Students:\par}
+  \vspace{0.2cm}
+  {\tablestyle
+  \begin{tabularx}{\textwidth}{|L{3.6cm}|C{1.6cm}|>{\RaggedRight\arraybackslash}X|}
+    \hline
+    \rowcolor{headbg}
+    \textbf{Name} & \textbf{ID} & \textbf{Email} \\[3pt]\hline
+    Phan Hữu Thành & 2670371 & thanh.phanbluewhales@hcmut.edu.vn \\[3pt]\hline
+    Trần Anh Khoa & 2670309 & khoa.trana@hcmut.edu.vn \\[3pt]\hline
+  \end{tabularx}
+  }
+
+  \vfill
+  {\large Ho Chi Minh City, 10/2026\par}
+\end{titlepage}
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+
+% ---------------------------------------------------------------------
+%  Front matter
+% ---------------------------------------------------------------------
+\tableofcontents
+\clearpage
+\listoffigures
+\listoftables
+\clearpage
+\pagenumbering{arabic}
+
+% ---------------------------------------------------------------------
+%  Scope
+% ---------------------------------------------------------------------
+\section*{Scope of this document}
+\addcontentsline{toc}{section}{Scope of this document}
+
+This document specifies the requirements of a recommender-enabled electronic e-commerce platform developed as
+the laboratory platform for the course topics \emph{Association Rules Mining}, \emph{Recommender
+Systems} and \emph{Word Embedding}. The e-commerce platform, the administration dashboard and the data layer
+constitute the operational part of the system. The intelligent component, a hybrid recommender that
+combines association rules learned from purchase transactions with semantic similarity learned from
+product descriptions, constitutes the research part, together with the data-warehouse pipeline that
+prepares the training data on which the recommender depends.
+
+The specification answers three questions: \emph{who} interacts with the system, \emph{what} the
+system must do for them, and \emph{how} these capabilities are organised into use cases.
+Section~\ref{sec:stakeholders} describes the role and benefits of each stakeholder group.
+Section~\ref{sec:fr} lists the functional requirements with their priority, including the
+requirements of the data-warehouse pipeline that supplies training data to the models.
+Section~\ref{sec:usecase} presents the general use-case model, the use-case catalogue and the main
+flows of the central use cases. Section~\ref{sec:traceability} provides the requirement-to-use-case
+traceability mapping in Table~\ref{tab:traceability}, covering both requirements and catalogue
+entries. Section~\ref{sec:dataset} introduces the selected dataset,
+describes its files and fields, and presents the adapted high-level operational data model.
+Section~\ref{sec:prototype} presents the interactive prototype and interface mockups,
+distinguishing demonstrated user interactions from the remaining analytical implementation.
+Detailed warehouse schemas,
+programming interfaces and deployment procedures are documented separately in the project's
+architecture description. Warehouse-schema design and ETL authoring are project responsibilities
+carried out through external scripts and notebooks; the functional requirements describe execution
+of the resulting pipeline and the recommendation workflow supported by the system.
+
+For this project, the model-development data consists of completed purchase transactions and
+available product text. Orders retain their items, quantities, purchase-time prices, timestamps and
+status; the catalogue retains product identifiers, categories and available names, descriptions and
+tags. Versioned datasets, training parameters, model artefacts and offline evaluation results make
+experiments repeatable. The current cart supplies recommendation context, but historical product
+views, clicks, cart actions and recommendation impressions are outside the recording scope.
+Purchases are retained as transactions without attribution to recommendations. Dataset refresh and
+model improvement are initiated manually by the data scientist.
+
+% ---------------------------------------------------------------------
+\clearpage
+\section{Role and Benefits of Stakeholders}
+\label{sec:stakeholders}
+
+The application applies Association Rule Mining to purchase transactions to discover products that
+are frequently bought together, and Word Embeddings to product text to identify semantically related
+products. Three stakeholder groups interact with it: \textbf{product buyers}, \textbf{administrators}
+and \textbf{data scientists}. Buyers generate purchase transactions, data scientists consolidate
+them with catalogue data in a warehouse and turn them into models, and administrators operate the
+store, safeguard the input data and inspect the active model. Table~\ref{tab:stakeholders}
+summarises the three groups.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Summary of stakeholders, their touch-points and primary benefits.}
+  \label{tab:stakeholders}
+  \tablestyle
+  \begin{tabular}{|L{0.16\tablecontentwidth}|L{0.28\tablecontentwidth}|L{0.22\tablecontentwidth}|L{0.34\tablecontentwidth}|}
+    \hline
+  \rowcolor{headbg}
+    \textbf{Stakeholder} & \textbf{Main role} & \textbf{Touch-point} & \textbf{Primary benefit} \\[3pt]\hline
+    Product Buyer & Browses, compares and purchases products; generates purchase transactions &
+      Public storefront & Finds suitable products faster; receives explainable
+      ``bought together'' and ``similar product'' suggestions \\[3pt]\hline
+    Administrator & Manages the catalogue, views orders, tracks sales, safeguards data quality, views the
+      active model & Administration dashboard & Operates the store from a single interface;
+      automated product suggestions; visibility of the active model \\[3pt]\hline
+    Data Scientist & Runs the warehouse pipeline, mines rules, trains embeddings, evaluates and
+      publishes models, refreshes experiments and selects the active configuration & Analytics workspace (external notebooks
+      and scripts, data
+      warehouse) & A realistic case study with clean, versioned data and a measurable evaluation
+      loop \\[3pt]\hline
+  \end{tabular}
+\end{table}
+
+\subsection{Product Buyers}
+
+Product buyers are the end consumers of the storefront: they browse categories, search by keyword,
+inspect product details, maintain a cart and complete purchases, without registration. Their role
+is to select products and respond to the recommendations shown to them. Opening a product page
+triggers rule-based ``frequently bought together'' suggestions and embedding-based ``similar
+product'' suggestions; changing the cart recomputes them over the whole basket. Completed purchases
+are recorded as orders and line items with quantities, purchase-time prices,
+timestamps and status. These transactions, together with maintained catalogue text, provide data for
+offline training and evaluation alongside the imported historical purchases. Cart contents are
+persisted as current shopping state and used to request suggestions; they are not an interaction
+history. Product views and recommendation displays or clicks are not recorded for model development.
+
+Buyers benefit from data-driven suggestions instead of scanning the whole catalogue: association
+rules reveal complementary items that are easy to overlook, embeddings reveal substitutes when a
+product is unavailable or too expensive, and each suggestion carries a short explanation that
+builds trust. A persistent cart and a one-step checkout reduce the effort of completing an order.
+
+\subsection{Administrators}
+
+Administrators operate and maintain the store through the administration dashboard; they understand
+the retail business and need no machine-learning background. Their responsibilities are catalogue
+management, including withdrawing products without losing order history; viewing orders and their
+contained products; monitoring sales through
+revenue, order volume, average order value and best-sellers; and, in the extended system, overseeing
+the recommender in production by viewing which model version or configuration is active. Because
+the embedding model learns from available product names, descriptions, categories and tags,
+administrators are also indirectly responsible for the quality of that text.
+
+Administrators benefit from a single, validated interface for all operations, from reports that
+remain correct when products are withdrawn, and from automated product suggestions without manually
+curating product pairs. Serving reports from the data warehouse keeps long analytical queries away from the
+storefront, and the modular design makes the system easier to maintain and extend.
+
+\subsection{Data Scientists}
+
+Data scientists, including the students carrying out the laboratory, are responsible for the
+analytical and experimental side of the application. As project responsibilities performed through
+external scripts and notebooks, they \emph{design the data
+warehouse schema}: identify the purchase processes to analyse, fix the grain of each fact table
+(one purchased order line), define its measures and the conformed product, category and calendar-date
+dimensions, including surrogate keys and the handling of changing product attributes such as price
+and category, and author and modify the ETL pipeline. These development activities are outside the
+application's use-case boundary. Through the analytics workspace they execute and refresh the
+resulting pipeline, and extract versioned datasets from successful warehouse loads: distinct-product
+baskets from completed orders for rule mining, an available product-text corpus for embeddings, and
+chronologically separated purchases for offline evaluation.
+
+On these datasets they mine association rules with Apriori or FP-Growth, tuning support, confidence
+and lift; train word embeddings with Word2Vec or FastText, or use a sentence-embedding model, to obtain
+one vector per product; and configure how association-based and embedding-based candidates are
+combined, with popularity as a fallback when learned candidates are insufficient. Rule-only,
+embedding-only and hybrid approaches are evaluated separately using suitable offline evidence.
+Purchase-basket completion evaluates rule-based and hybrid recommendations against a popularity
+baseline using precision, recall and catalogue coverage at a fixed list length on later held-out
+orders. Similar-product embeddings are assessed through a documented manual relevance review of a
+fixed sample against a category-based baseline, since substitutes need not be bought together.
+The data scientist stores the versioned artefacts and evaluation results, publishes versions that meet the
+acceptance criteria, and has sole responsibility for selecting and activating the model or
+configuration used by the storefront. Publishing makes an evaluated version available; selection
+determines which available version is served. Both actions may be performed consecutively by the
+same data scientist. When new completed purchases or catalogue changes are available, the data
+scientist manually refreshes the warehouse and datasets, reruns training and evaluation, and compares
+the new results before deciding whether to publish and activate a replacement.
+
+Data scientists benefit from a realistic e-commerce case study in which transactional and textual
+data come from one live system, from a warehouse whose schema is shaped in advance for rule mining,
+embedding and evaluation, and from snapshot-based training that isolates experiments from operations
+and makes them repeatable and comparable. Stored dataset versions, training parameters, model
+versions and evaluation results support model improvement without an online interaction-feedback
+pipeline or claims about purchases caused by recommendations.
+
+% ---------------------------------------------------------------------
+\clearpage
+\section{Functional Requirements}
+\label{sec:fr}
+
+The following tables group functional requirements by stakeholder and pipeline.
+Each requirement has an identifier: FR-B for buyers, FR-A for administrators, FR-D for data scientists
+and FR-W for the warehouse pipeline. Table~\ref{tab:traceability} maps these identifiers to the
+use-case catalogue. Schema design and ETL authoring remain the project responsibilities described
+in Section~\ref{sec:stakeholders}, rather than application functional requirements.
+Priority follows the MoSCoW scheme: \textbf{M}ust have, \textbf{S}hould have and
+\textbf{C}ould have.
+    
+\subsection{Requirements for Product Buyers}
+
+{\tablestyle
+\begin{longtable}{|L{\dimexpr\textwidth-2cm-4\tabcolsep-3\arrayrulewidth\relax}|C{2cm}|}
+  \caption{Functional requirements for product buyers.}
+  \label{tab:fr-buyer}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement} & \textbf{Priority} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement} & \textbf{Priority} \\
+  \hline
+  \endhead
+  \endfoot
+  \endlastfoot
+
+  \req{FR-B01} The buyer can browse, search and view products available on the e-commerce platform. & M \\[3pt]\hline
+  \req{FR-B02} The buyer can add products to a shopping cart, update the cart and complete a purchase. & M \\[3pt]\hline
+  \req{FR-B03} Completed purchases are stored as orders and line items retaining order and product
+  identifiers, quantities, purchase-time prices, purchase timestamps and status. These records support
+  purchase-basket mining, offline evaluation and sales reporting without recommendation attribution. & M \\[3pt]\hline
+  \req{FR-B04} The buyer receives ``frequently bought together'' recommendations derived from association
+  patterns learned from historical completed purchase transactions. & M \\[3pt]\hline
+  \req{FR-B05} The buyer receives additional ``similar product'' recommendations derived from semantic
+  similarity between product representations produced using word embeddings. & M \\[3pt]\hline
+  \req{FR-B06} Recommendations are presented with a short explanation indicating why a product is suggested,
+  such as being frequently associated with products in the current context or being semantically
+  similar to the product being viewed. & S \\[3pt]\hline
+\end{longtable}
+}
+
+
+\subsection{Requirements for Administrators}
+
+{\tablestyle
+\begin{longtable}{|L{\dimexpr\textwidth-2cm-4\tabcolsep-3\arrayrulewidth\relax}|C{2cm}|}
+  \caption{Functional requirements for administrators.}
+  \label{tab:fr-admin}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement} & \textbf{Priority} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement} & \textbf{Priority} \\
+  \hline
+  \endhead
+  \endfoot
+  \endlastfoot
+
+  \req{FR-A01} The administrator can create, update and withdraw products, including their catalogue
+  information such as name, category, price, stock level, description and tags. These operational
+  changes are stored in the operational database. & M \\[3pt]\hline
+  \req{FR-A02} The administrator can view orders and the products contained in each order. & M \\[3pt]\hline
+  \req{FR-A03} The administrator can view analytical information derived from the data warehouse, including
+  revenue, order volume, average order value, best-selling products and sales trends over time. & M \\[3pt]\hline
+  \req{FR-A04} The administrator can view which recommendation model or recommendation configuration is
+  currently active. & S \\[3pt]\hline
+\end{longtable}
+}
+
+
+\subsection{Requirements for Data Scientists}
+
+{\tablestyle
+\begin{longtable}{|L{\dimexpr\textwidth-2cm-4\tabcolsep-3\arrayrulewidth\relax}|C{2cm}|}
+  \caption{Functional requirements for data scientists.}
+  \label{tab:fr-ds}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement} & \textbf{Priority} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement} & \textbf{Priority} \\
+  \hline
+  \endhead
+  \endfoot
+  \endlastfoot
+
+  \req{FR-D01} The data scientist can manually execute and refresh the ETL pipeline that transforms
+  operational product and purchase-transaction data into the analytical structures stored in the
+  data warehouse. & M \\[3pt]\hline
+  \req{FR-D02} The data scientist can obtain versioned completed-order baskets, available product-text
+  corpora and chronological purchase hold-outs from the data warehouse for mining, semantic product
+  representation and offline recommendation experiments. & M \\[3pt]\hline
+  \req{FR-D03} The data scientist can apply Association Rule Mining to historical completed purchase
+  baskets to discover product associations used for ``frequently bought together'' recommendations. & M \\[3pt]\hline
+  \req{FR-D04} The data scientist can use word-embedding techniques to produce semantic representations of
+  products from their textual information and identify semantically similar products. & M \\[3pt]\hline
+  \req{FR-D05} The data scientist can combine association-rule-based candidates and embedding-based candidates
+  into a hybrid recommendation strategy, while also retaining the ability to analyse the two
+  recommendation approaches separately. & M \\[3pt]\hline
+  \req{FR-D06} The data scientist can store versioned association rules, product representations, hybrid
+  configuration and model metadata, including source dataset versions and training parameters, so
+  that experiments can be reproduced and the artefacts evaluated, published and used by the platform. & M \\[3pt]\hline
+  \req{FR-D07} The data scientist can evaluate rule-based and hybrid basket-completion recommendations
+  on later held-out purchases using precision, recall and catalogue coverage at a fixed list length
+  against a popularity baseline. Embedding-based similar products are assessed through a documented
+  manual relevance review of a fixed sample against a category-based baseline. Metrics and review
+  results are stored with the corresponding model and dataset versions. The evaluation protocol and
+  acceptance criteria are recorded before evaluating a candidate. & M \\[3pt]\hline
+  \req{FR-D08} The data scientist can publish evaluated model versions that meet the defined acceptance criteria,
+  releasing their association rules, product representations, hybrid configuration and model metadata
+  so that they are available for selection and activation by the data scientist. & M \\[3pt]\hline
+  \req{FR-D09} The data scientist can select and activate an available published recommendation model or
+  configuration for use by the e-commerce platform, and view confirmation of the active selection.
+  Model selection and activation are restricted to this role. & S \\[3pt]\hline
+  \req{FR-D10} After new completed purchases or catalogue updates, the data scientist can manually
+  refresh the datasets, retrain affected models and rerun offline evaluation. The resulting versions
+  and results remain available for comparison before publication and activation. & S \\[3pt]\hline
+\end{longtable}
+}
+
+
+\subsection{Requirements for the Data-Warehouse Pipeline}
+
+The data warehouse supports both the intelligent recommendation workflow and the analytical
+functions of the administration dashboard. It consolidates operational data into a structure that
+can be used for Association Rule Mining, word-embedding-based recommendation and business
+statistics.
+
+{\tablestyle
+\begin{longtable}{|L{\dimexpr\textwidth-2cm-4\tabcolsep-3\arrayrulewidth\relax}|C{2cm}|}
+  \caption{Functional requirements for the data-warehouse pipeline.}
+  \label{tab:fr-dw}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement} & \textbf{Priority} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement} & \textbf{Priority} \\
+  \hline
+  \endhead
+  \endfoot
+  \endlastfoot
+
+  \req{FR-W01} The ETL pipeline extracts relevant product, order and purchased-item data from the
+  operational database and loads the transformed data into a separate analytical data warehouse. & M \\[3pt]\hline
+  \req{FR-W02} The data warehouse contains fact and dimension structures that preserve purchased
+  items, quantities, purchase-time prices, order status, product information and purchase timestamps
+  required by the recommender system and administrative reports. & M \\[3pt]\hline
+  \req{FR-W03} The warehouse provides distinct-product baskets grouped by eligible completed order
+  for Association Rule Mining. Quantities remain available for sales reporting; repeated units of
+  the same product do not create duplicate basket entries. & M \\[3pt]\hline
+  \req{FR-W04} The warehouse provides available product text, including categories and any maintained
+  names, descriptions and tags, for embedding-based representations. The initial Olist dataset uses
+  translated category text; any richer project catalogue text is documented separately. & M \\[3pt]\hline
+  \req{FR-W05} The warehouse provides aggregated historical information required by the administration
+  dashboard, including sales, orders and product performance over time. & M \\[3pt]\hline
+  \req{FR-W06} The data scientist can manually rerun the pipeline after new purchase transactions or
+  catalogue changes to refresh the warehouse and the datasets used by the recommendation system. & S \\[3pt]\hline
+\end{longtable}
+}
+% ---------------------------------------------------------------------
+\clearpage
+\section{General Use-Case Model}
+\label{sec:usecase}
+
+Figure~\ref{fig:usecase} shows the general use-case model. The three actors operate in three
+subsystems that are connected through data rather than through direct interaction: buyers create
+purchase transactions, the warehouse pipeline consolidates them with catalogue data, data scientists extract training
+datasets from the warehouse, and the model selected and activated by the data scientist supplies the
+recommendations shown to buyers. Administrators view orders and sales reports, maintain the catalogue
+text on which embeddings depend, and view the active model or configuration.
+The analytics workspace exposes pipeline execution and model operations; warehouse-schema design
+and ETL authoring take place in external development tools.
+
+Solid lines associate actors with their use cases. Grey dashed arrows labelled \inc\ denote
+behaviour performed within another use case, namely recommendation delivery on product pages and
+cart updates. Purple dashed arrows denote data dependencies across subsystem boundaries.
+They describe the flow of model, purchase-transaction and catalogue information, rather than
+the order in which use cases must execute. Previously prepared warehouse snapshots, datasets and
+evaluation results may be reused; their availability is a precondition for subsequent operations.
+
+\begin{figure}[htbp]
+  \centering
+  \reportimage[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/usecase.png}{\textwidth}{0.81\textwidth}
+  \caption{General use-case diagram of the recommender-enabled storefront.}
+  \label{fig:usecase}
+\end{figure}
+\clearpage
+
+\subsection{Use-case catalogue}
+
+Table~\ref{tab:usecases} summarises each use case with its primary actor and outcome.
+
+{\tablestyle
+\begin{longtable}{|L{0.20\tablecontentwidth}|L{0.14\tablecontentwidth}|L{0.33\tablecontentwidth}|L{0.33\tablecontentwidth}|}
+  \caption{Use-case catalogue.}
+  \label{tab:usecases}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Use case} & \textbf{Actor} & \textbf{Summary} & \textbf{Outcome} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Use case} & \textbf{Actor} & \textbf{Summary} & \textbf{Outcome} \\
+  \hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  Browse and search products & Buyer & List products by category; search, filter and sort &
+    Matching products displayed \\[3pt]\hline
+  View product details & Buyer & Open a product page; includes \emph{Receive recommendations} &
+    Product attributes and recommendations displayed \\[3pt]\hline
+  Receive recommendations & Buyer (indirect) & Present complementary and similar suggestions for
+    the current product or basket & Explained list generated using the active model and strategy \\[3pt]\hline
+  Manage shopping cart & Buyer & Add, update and remove items; includes \emph{Receive
+    recommendations} & Current cart updated and persisted; recommendations refreshed \\[3pt]\hline
+  Place an order & Buyer & Confirm the cart with minimal contact details & Order and line items
+    recorded atomically; stock reduced; cart cleared \\[3pt]\hline
+
+  View orders and order items & Administrator & Inspect an order and its contained products &
+    Order details and historical item information displayed \\[3pt]\hline
+  View sales reports & Administrator & Inspect warehouse-derived revenue, order volume, average
+    order value, best-sellers and trends & Requested sales indicators and time series displayed \\[3pt]\hline
+  Manage catalogue & Administrator & Create, edit and withdraw products & Catalogue updated;
+    withdrawn products kept in historical records \\[3pt]\hline
+  View model status & Administrator & Inspect the active recommendation model or configuration &
+    Active version and configuration displayed \\[3pt]\hline
+
+  Run and refresh data warehouse & Data Scientist & Execute ETL into the established dimensional
+    schema & Facts, dimensions, dataset views and reporting aggregates refreshed; load metadata
+    and quality report recorded \\[3pt]\hline
+  Extract dataset & Data Scientist & Derive mining, product-text and evaluation data from a
+    successful warehouse snapshot & Versioned datasets stored with lineage \\[3pt]\hline
+  Train models & Data Scientist & Mine rules, train embeddings and configure the hybrid using
+    available versioned datasets & Versioned rules, vectors, hybrid configuration and metadata
+    stored; separate methods remain available \\[3pt]\hline
+  Evaluate models & Data Scientist & Assess basket completion on held-out purchases and review
+    similar-product relevance against suitable baselines & Offline metrics and manual review results
+    stored with model and dataset versions \\[3pt]\hline
+  Publish evaluated model & Data Scientist & Release stored rules, vectors, hybrid configuration
+    and metadata after checking acceptable evaluation results & Published version available for
+    selection and activation \\[3pt]\hline
+  Select and activate model/configuration & Data Scientist & Select an available published version
+    or configuration for online serving & Active selection updated and confirmed; subsequent
+    recommendations use it \\[3pt]\hline
+\end{longtable}
+}
+
+\subsection{Requirement-to-use-case traceability}
+\label{sec:traceability}
+
+Table~\ref{tab:traceability} links every functional requirement to the use case or use cases that
+describe its behaviour. A use case may cover several requirements, and a requirement may involve
+several use cases. Purchase persistence is part of placing an order; warehouse refresh and model
+experiments are separate Data Scientist operations. Schema design and ETL authoring are outside this
+mapping because they are project responsibilities rather than application functional requirements.
+Every catalogue entry appears in the mapping, so it can also be read from a use case to the
+requirements it fulfils.
+
+{\tablestyle
+\begin{longtable}{|L{2.6cm}|L{\dimexpr\textwidth-2.6cm-4\tabcolsep-3\arrayrulewidth\relax}|}
+  \caption{Functional requirement-to-use-case traceability.}
+  \label{tab:traceability}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement ID} & \textbf{Corresponding use case(s)} \\
+  \hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Requirement ID} & \textbf{Corresponding use case(s)} \\
+  \hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \req{FR-B01} & Browse and search products; View product details \\[3pt]\hline
+  \req{FR-B02} & Manage shopping cart; Place an order \\[3pt]\hline
+  \req{FR-B03} & Place an order \\[3pt]\hline
+  \req{FR-B04} & Receive recommendations \\[3pt]\hline
+  \req{FR-B05} & Receive recommendations \\[3pt]\hline
+  \req{FR-B06} & Receive recommendations \\[3pt]\hline
+  \req{FR-A01} & Manage catalogue \\[3pt]\hline
+  \req{FR-A02} & View orders and order items \\[3pt]\hline
+  \req{FR-A03} & View sales reports \\[3pt]\hline
+  \req{FR-A04} & View model status \\[3pt]\hline
+  \req{FR-D01} & Run and refresh data warehouse \\[3pt]\hline
+  \req{FR-D02} & Extract dataset \\[3pt]\hline
+  \req{FR-D03} & Train models \\[3pt]\hline
+  \req{FR-D04} & Train models \\[3pt]\hline
+  \req{FR-D05} & Train models; Evaluate models \\[3pt]\hline
+  \req{FR-D06} & Train models; Publish evaluated model \\[3pt]\hline
+  \req{FR-D07} & Evaluate models \\[3pt]\hline
+  \req{FR-D08} & Publish evaluated model \\[3pt]\hline
+  \req{FR-D09} & Select and activate model/configuration \\[3pt]\hline
+  \req{FR-D10} & Run and refresh data warehouse; Extract dataset; Train models; Evaluate models \\[3pt]\hline
+  \req{FR-W01} & Run and refresh data warehouse \\[3pt]\hline
+  \req{FR-W02} & Run and refresh data warehouse \\[3pt]\hline
+  \req{FR-W03} & Run and refresh data warehouse; Extract dataset \\[3pt]\hline
+  \req{FR-W04} & Run and refresh data warehouse; Extract dataset \\[3pt]\hline
+  \req{FR-W05} & Run and refresh data warehouse; View sales reports \\[3pt]\hline
+  \req{FR-W06} & Run and refresh data warehouse; Extract dataset \\[3pt]\hline
+\end{longtable}
+}
+
+\subsection{Main flows of the central use cases}
+
+\paragraph{Receive recommendations.}
+The storefront requests suggestions for the current product or cart contents. Using the active model
+and configuration, the recommendation service retrieves complementary candidates from matching
+association rules and similar-product candidates from product embeddings. The hybrid configuration
+determines their ranking and combination; popular products fill remaining gaps when learned
+candidates are insufficient. Each suggestion carries its model version, strategy and a short reason.
+The storefront displays the suggestions with their reasons. Product-page and cart changes request
+updated suggestions using the current context; they do not create historical interaction records.
+
+\paragraph{Place an order.}
+The buyer confirms the cart with minimal contact details. The order service validates the request and
+checks availability, then records the order, its line items with the price at the time of purchase,
+and the stock adjustments in one atomic operation. The order retains its purchase timestamp and
+status, and the buyer receives an order number. Completed orders become the durable transaction
+history used by the warehouse; no purchase-to-recommendation attribution is recorded. If any item is
+insufficiently stocked, the whole operation is cancelled and the
+affected product is reported.
+
+\paragraph{View orders and order items.}
+The administrator selects an order from the operational order records. The system displays its
+details and contained products, including quantities and prices recorded at purchase time.
+Historical order information remains accessible when a catalogue product is withdrawn.
+
+\paragraph{View sales reports.}
+The administrator chooses the reporting period and inspects warehouse-derived revenue, order volume,
+average order value, best-selling products and sales trends. Reports reflect the latest successful
+warehouse refresh and retained purchase-time quantities and prices.
+
+\paragraph{View model status.}
+The administrator inspects the currently active model version and recommendation configuration from
+the serving state. This visibility is separate from sales reporting and does not grant model
+selection or activation rights.
+
+\paragraph{Run and refresh data warehouse.}
+When manually requested by the data scientist, the pipeline extracts orders, purchased items and
+products changed since the last successful load. It transforms them to the dimensional schema
+(surrogate keys, conformed dimensions and facts at purchased-order-line grain), validates integrity,
+completeness, duplicates and value ranges, and loads the result into the schema prepared during
+project development. Failed checks reject the load; successful loads refresh training-dataset views
+and sales aggregates used by the administration dashboard, and record their lineage. Subsequent
+runs process new purchase transactions and catalogue changes. Executing ETL is separate from
+designing or modifying its implementation.
+
+\paragraph{Extract dataset.}
+A successful warehouse snapshot is a precondition. The data scientist extracts distinct-product
+baskets from eligible completed orders, available product text including categories and any
+maintained names, descriptions and tags, and chronological purchase data for evaluation. Imported
+Olist records initially supply purchase baskets and translated category text; richer product text,
+if added, comes from separately documented catalogue enrichment. Quantities are obtained from stored
+order-item quantities or counted source item rows as appropriate. Each dataset is stored with its
+source snapshot, scope and version. Extraction can reuse an existing warehouse snapshot without
+rerunning ETL.
+
+\paragraph{Model life cycle.}
+Training requires available versioned datasets. The data scientist mines rules with chosen support,
+confidence and lift thresholds, produces one embedding vector per product, and configures the hybrid
+combination and fallback behaviour. Rules, vectors, configuration and metadata are stored as versioned
+artefacts, retaining separately usable association-based and embedding-based approaches. Training
+experiments may reuse the same datasets without extracting them again.
+
+Evaluation requires stored model artefacts and suitable versioned evaluation data. Before running
+evaluation, the data scientist records the experiment protocol and acceptance criteria: the dataset
+scope and split, list length, baseline, required metric thresholds for basket completion, and the
+sample, relevance rubric and minimum acceptable result for the similar-product review. These
+experiment settings are fixed before inspecting the candidate's evaluation results and retained
+with the model and dataset versions. Publication checks the stored results against those criteria;
+missing results or unmet criteria prevent publication. The thresholds are experiment parameters,
+rather than evidence of online recommendation effectiveness.
+
+Earlier purchases
+train the models; later eligible multi-product orders form a chronological hold-out. Basket-completion
+experiments expose part of each held-out basket as context and use its remaining products as targets.
+Rule-only and hybrid recommendations are compared with a popularity baseline learned only from
+training data, using precision and recall at a fixed list length and catalogue coverage across the
+evaluated recommendation lists. The split, context/target procedure and list length are recorded.
+
+Embedding-based similar products are assessed separately using a fixed sample of product queries
+and a documented manual relevance rubric, with a category-based baseline evaluated on the same
+queries. The review records the catalogue-text source, sample, relevance judgements and model version;
+category-only Olist text limits the specificity of this initial semantic evaluation. Purchase
+co-occurrence does not establish whether two products are suitable substitutes. The experiment
+results support offline model comparison, without measuring recommendation-attributed sales.
+
+Results are stored with the model and dataset versions. Publication requires acceptable stored
+evaluation results under the documented acceptance criteria for the exact version being released;
+it makes that version's rules, vectors, configuration and metadata available without rerunning
+evaluation or automatically changing the active selection.
+
+\paragraph{Refresh model experiments.}
+When new completed purchases or catalogue updates become available, the data scientist manually runs
+the warehouse refresh, extracts new versioned datasets and repeats the affected training and
+evaluation experiments. New results are compared with the previous version before deciding whether
+to publish and activate a replacement. Training-parameter trials may reuse an existing dataset.
+This workflow reuses the warehouse, extraction, training and evaluation use cases; it does not
+require interaction-event collection or automatic retraining.
+
+\paragraph{Select and activate model/configuration.}
+The data scientist chooses an available published model version or configuration. The system checks
+that the selected artefacts are available, activates the selection for online serving and confirms
+the active version/configuration. Subsequent recommendation requests use that selection, which the
+administrator can inspect through \emph{View model status}. If activation fails, the current active
+selection remains in use. Publication and activation may be performed consecutively by the data
+scientist, who alone controls both operations.
+
+% ---------------------------------------------------------------------
+\clearpage
+\section{Dataset Description and Project Integration}
+\label{sec:dataset}
+
+\subsection{Dataset overview}
+
+The project will use the \emph{Brazilian E-Commerce Public Dataset by Olist},
+available on Kaggle~\cite{olist2026}. Olist released anonymised commercial records
+for approximately 100,000 orders placed between 2016 and 2018 across multiple
+marketplaces in Brazil. The data describes customers, products, sellers, orders,
+purchased items, payments, delivery information and customer reviews. It covers
+multiple product categories, providing a historical basis for the project's
+operational database, sales analytics and association-rule experiments.
+
+The release consists of nine related CSV files. They form a relational data model:
+orders connect customers to purchased items, and each item connects an order to a
+product and a seller. Payments and reviews describe the same orders, while
+geolocation and category translations provide additional reference information.
+This connected structure allows the project to reconstruct purchase baskets and
+prepare analytical datasets through the ETL pipeline.
+
+\subsection{Files and fields}
+
+The following tables give a simple description of all 52 fields across the nine
+files. Attribute names follow the original CSV headers. The data types describe
+how values will be represented after import; CSV files themselves do not declare
+database types. String denotes text, Integer denotes a whole number, Decimal
+denotes a numeric value with a fractional part, and Timestamp denotes a date and
+time. Identifiers and postal-code prefixes will be stored as strings to preserve
+their original form, including leading zeros. Missing values will be checked
+during import rather than treated as zero.
+
+\subsubsection{Customers}
+
+\textbf{File:} \nolinkurl{olist_customers_dataset.csv}.
+
+Customer identifiers and delivery locations. The same person can have different customer IDs across orders; the unique customer ID links repeat purchases.
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Fields in the customers file.}
+  \label{tab:dataset-1}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{customer_id} & String & Customer identifier used to link a customer record to an order. \\[3pt]\hline
+  \nolinkurl{customer_unique_id} & String & Identifier for the same customer across different orders. \\[3pt]\hline
+  \nolinkurl{customer_zip_code_prefix} & String & First five digits of the customer postal code. \\[3pt]\hline
+  \nolinkurl{customer_city} & String & City of the customer delivery address. \\[3pt]\hline
+  \nolinkurl{customer_state} & String & Brazilian state of the customer delivery address. \\[3pt]\hline
+\end{longtable}
+}
+
+\subsubsection{Orders}
+
+\textbf{File:} \nolinkurl{olist_orders_dataset.csv}.
+
+Order headers, including the customer, order status and purchase and delivery dates.
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Fields in the orders file.}
+  \label{tab:dataset-2}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{order_id} & String & Identifier of the order. \\[3pt]\hline
+  \nolinkurl{customer_id} & String & Links the order to its customer record. \\[3pt]\hline
+  \nolinkurl{order_status} & String & Status of the order, such as delivered or canceled. \\[3pt]\hline
+  \nolinkurl{order_purchase_timestamp} & Timestamp & Date and time when the order was placed. \\[3pt]\hline
+  \nolinkurl{order_approved_at} & Timestamp & Date and time when the order payment was approved. \\[3pt]\hline
+  \nolinkurl{order_delivered_carrier_date} & Timestamp & Date and time when the order was handed to the carrier. \\[3pt]\hline
+  \nolinkurl{order_delivered_customer_date} & Timestamp & Date and time when the customer received the order. \\[3pt]\hline
+  \nolinkurl{order_estimated_delivery_date} & Timestamp & Delivery date estimated at the time of purchase. \\[3pt]\hline
+\end{longtable}
+}
+
+\subsubsection{Order items}
+
+\textbf{File:} \nolinkurl{olist_order_items_dataset.csv}.
+
+Items purchased within each order. An order can contain several items, possibly supplied by different sellers. An item is identified by the combination of order ID and item sequence.
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Fields in the order items file.}
+  \label{tab:dataset-3}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{order_id} & String & Links the item to its order. \\[3pt]\hline
+  \nolinkurl{order_item_id} & Integer & Sequential item number within the order; not a quantity field. \\[3pt]\hline
+  \nolinkurl{product_id} & String & Links the purchased item to its product. \\[3pt]\hline
+  \nolinkurl{seller_id} & String & Links the purchased item to the seller fulfilling it. \\[3pt]\hline
+  \nolinkurl{shipping_limit_date} & Timestamp & Deadline for the seller to hand the item to the logistics partner. \\[3pt]\hline
+  \nolinkurl{price} & Decimal & Sale price of the item, excluding its freight charge. \\[3pt]\hline
+  \nolinkurl{freight_value} & Decimal & Freight charge associated with the item. \\[3pt]\hline
+\end{longtable}
+}
+
+\subsubsection{Order payments}
+
+\textbf{File:} \nolinkurl{olist_order_payments_dataset.csv}.
+
+Payment records for orders. An order may use more than one payment method, so several payment records can belong to the same order.
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Fields in the order payments file.}
+  \label{tab:dataset-4}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{order_id} & String & Links the payment record to its order. \\[3pt]\hline
+  \nolinkurl{payment_sequential} & Integer & Sequence distinguishing payment records within an order. \\[3pt]\hline
+  \nolinkurl{payment_type} & String & Payment method, such as credit card, voucher or boleto. \\[3pt]\hline
+  \nolinkurl{payment_installments} & Integer & Number of installments selected for the payment. \\[3pt]\hline
+  \nolinkurl{payment_value} & Decimal & Amount recorded for this payment. \\[3pt]\hline
+\end{longtable}
+}
+
+\subsubsection{Products}
+
+\textbf{File:} \nolinkurl{olist_products_dataset.csv}.
+
+Product categories and physical attributes. The name and description length fields contain character counts, rather than the original product text. The spelling \texttt{lenght} is retained from the source.
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Fields in the products file.}
+  \label{tab:dataset-5}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{product_id} & String & Identifier of the product. \\[3pt]\hline
+  \nolinkurl{product_category_name} & String & Product category name in Portuguese. \\[3pt]\hline
+  \nolinkurl{product_name_lenght} & Integer & Number of characters in the product name; the name itself is absent. \\[3pt]\hline
+  \nolinkurl{product_description_lenght} & Integer & Number of characters in the description; the description itself is absent. \\[3pt]\hline
+  \nolinkurl{product_photos_qty} & Integer & Number of photographs associated with the product. \\[3pt]\hline
+  \nolinkurl{product_weight_g} & Integer & Product weight in grams. \\[3pt]\hline
+  \nolinkurl{product_length_cm} & Integer & Product length in centimetres. \\[3pt]\hline
+  \nolinkurl{product_height_cm} & Integer & Product height in centimetres. \\[3pt]\hline
+  \nolinkurl{product_width_cm} & Integer & Product width in centimetres. \\[3pt]\hline
+\end{longtable}
+}
+
+\subsubsection{Sellers}
+
+\textbf{File:} \nolinkurl{olist_sellers_dataset.csv}.
+
+Identifiers and locations of sellers who fulfil the purchased items.
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Fields in the sellers file.}
+  \label{tab:dataset-6}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{seller_id} & String & Identifier of the seller. \\[3pt]\hline
+  \nolinkurl{seller_zip_code_prefix} & String & First five digits of the seller postal code. \\[3pt]\hline
+  \nolinkurl{seller_city} & String & City where the seller is located. \\[3pt]\hline
+  \nolinkurl{seller_state} & String & Brazilian state where the seller is located. \\[3pt]\hline
+\end{longtable}
+}
+
+\subsubsection{Order reviews}
+
+\textbf{File:} \nolinkurl{olist_order_reviews_dataset.csv}.
+
+Customer satisfaction survey responses about the purchase experience. Reviews are linked to orders, so an order review is not automatically a rating of each individual product.
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Fields in the order reviews file.}
+  \label{tab:dataset-7}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{review_id} & String & Identifier attached to the review record. \\[3pt]\hline
+  \nolinkurl{order_id} & String & Links the review to its order. \\[3pt]\hline
+  \nolinkurl{review_score} & Integer & Customer satisfaction score from 1 to 5. \\[3pt]\hline
+  \nolinkurl{review_comment_title} & String & Optional title written by the customer. \\[3pt]\hline
+  \nolinkurl{review_comment_message} & String & Optional review comment written by the customer. \\[3pt]\hline
+  \nolinkurl{review_creation_date} & Timestamp & Date when the satisfaction survey was sent to the customer. \\[3pt]\hline
+  \nolinkurl{review_answer_timestamp} & Timestamp & Date and time when the customer submitted the survey response. \\[3pt]\hline
+\end{longtable}
+}
+
+\subsubsection{Geolocation}
+
+\textbf{File:} \nolinkurl{olist_geolocation_dataset.csv}.
+
+Geographic coordinates associated with Brazilian postal-code prefixes. Several location records can share the same prefix.
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Fields in the geolocation file.}
+  \label{tab:dataset-8}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{geolocation_zip_code_prefix} & String & First five digits of the postal code. \\[3pt]\hline
+  \nolinkurl{geolocation_lat} & Decimal & Latitude of the location. \\[3pt]\hline
+  \nolinkurl{geolocation_lng} & Decimal & Longitude of the location. \\[3pt]\hline
+  \nolinkurl{geolocation_city} & String & City associated with the location. \\[3pt]\hline
+  \nolinkurl{geolocation_state} & String & Brazilian state associated with the location. \\[3pt]\hline
+\end{longtable}
+}
+
+\subsubsection{Category translations}
+
+\textbf{File:} \nolinkurl{product_category_name_translation.csv}.
+
+Portuguese-to-English translations of product category names. Categories without a matching translation will retain their original label.
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Fields in the category translations file.}
+  \label{tab:dataset-9}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{product_category_name} & String & Portuguese category name used in the products file. \\[3pt]\hline
+  \nolinkurl{product_category_name_english} & String & Corresponding English category name. \\[3pt]\hline
+\end{longtable}
+}
+
+\subsection{Project data model}
+\label{sec:project-data-model}
+
+Figure~\ref{fig:project-data-model} shows the adapted relational model for the
+project. It separates a customer's persistent identity from the location snapshot
+associated with an order, connects products to categories and sellers, and links
+orders to their items, payments and reviews. The model retains purchase transactions and catalogue
+information; it does not include an interaction-event entity. Current cart state and experiment
+metadata are operational or analytical structures outside this identifier-focused diagram.
+
+\begin{figure}[htbp]
+  \centering
+  \reportimage[width=\textwidth,height=0.75\textheight,keepaspectratio]{figures/data-model.png}{\textwidth}{0.69\textwidth}
+  \caption{Adapted project data model and its entity relationships.}
+  \label{fig:project-data-model}
+\end{figure}
+\clearpage
+
+The following four tables describe the key attributes displayed in the diagram.
+Attribute names are qualified by entity, for example \nolinkurl{Order.id}.
+String is a text identifier, Int is an integer, and Bigint is a larger integer
+used for generated record identifiers. PK denotes a primary key, FK a foreign
+key, and UK a uniqueness constraint. Nullable means that the relationship can be
+absent. The diagram focuses on identifiers and relationships; the descriptive,
+transactional and timestamp fields listed in the CSV tables will also be mapped
+to their corresponding project entities.
+
+The source and project identifiers are distinct. Generated Int and Bigint keys
+will identify records inside the project, while the original Olist identifiers
+will be retained through source fields or mapping records. In particular,
+\nolinkurl{customer_unique_id} will map to \nolinkurl{Customer.id}, and the
+order-specific \nolinkurl{customer_id} will map to
+\nolinkurl{CustomerSnapshot.id}. This preserves repeat-customer identity and the
+customer location recorded for each historical order.
+
+\paragraph{Customer identity and location.}
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Project model attributes: customer identity and location.}
+  \label{tab:project-model-1}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{Customer.id} & String & PK. Persistent customer identifier, mapped from the source customer unique ID. \\[3pt]\hline
+  \nolinkurl{CustomerSnapshot.id} & String & PK. Identifies the customer location snapshot associated with a source order. \\[3pt]\hline
+  \nolinkurl{CustomerSnapshot.customerId} & String & FK to Customer.id. Links the snapshot to the persistent customer identity. \\[3pt]\hline
+  \nolinkurl{Geolocation.id} & Bigint & PK. Generated identifier for a geographic reference record. \\[3pt]\hline
+  \nolinkurl{Geolocation.zipCodePrefix} & String & Postal-code prefix used to match customer and seller locations to geographic records. \\[3pt]\hline
+\end{longtable}
+}
+
+\paragraph{Product catalogue and categories.}
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Project model attributes: product catalogue and categories.}
+  \label{tab:project-model-2}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{Category.id} & Int & PK. Generated identifier for a product category. \\[3pt]\hline
+  \nolinkurl{CategoryTranslation.id} & Int & PK. Generated identifier for a category translation record. \\[3pt]\hline
+  \nolinkurl{CategoryTranslation.categoryId} & Int & FK to Category.id and UK. Allows at most one translation record per category in this model. \\[3pt]\hline
+  \nolinkurl{Product.id} & Int & PK. Generated product identifier, mapped to the original Olist product ID. \\[3pt]\hline
+  \nolinkurl{Product.categoryId} & Int & FK to Category.id. Identifies the category classifying the product. \\[3pt]\hline
+\end{longtable}
+}
+
+\paragraph{Orders, purchased items and sellers.}
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Project model attributes: orders, purchased items and sellers.}
+  \label{tab:project-model-3}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{Seller.id} & String & PK. Seller identifier retained from the source seller ID. \\[3pt]\hline
+  \nolinkurl{Order.id} & Bigint & PK. Generated order identifier, mapped to the original Olist order ID. \\[3pt]\hline
+  \nolinkurl{Order.customerId} & String & Nullable FK to Customer.id. Identifies the buyer when a persistent customer is available. \\[3pt]\hline
+  \nolinkurl{Order.customerSnapshotId} & String & Nullable FK to CustomerSnapshot.id and UK. Associates an order with its own customer location snapshot. \\[3pt]\hline
+  \nolinkurl{OrderItem.id} & Bigint & PK. Generated item-record identifier; the source order ID and item sequence are retained for mapping. \\[3pt]\hline
+  \nolinkurl{OrderItem.orderId} & Bigint & FK to Order.id. Identifies the order containing the purchased item. \\[3pt]\hline
+  \nolinkurl{OrderItem.productId} & Int & Nullable FK to Product.id. Identifies the purchased product when a linked catalogue record is available. \\[3pt]\hline
+  \nolinkurl{OrderItem.sellerId} & String & Nullable FK to Seller.id. Identifies the seller fulfilling the item when available. \\[3pt]\hline
+\end{longtable}
+}
+
+\paragraph{Payments and reviews.}
+
+{\tablestyle
+\begin{longtable}{|L{5.7cm}|L{2.1cm}|L{\dimexpr\textwidth-7.8cm-6\tabcolsep-4\arrayrulewidth\relax}|}
+  \caption{Project model attributes: payments and reviews.}
+  \label{tab:project-model-4}\\
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endfirsthead
+  \hline
+  \rowcolor{headbg}
+  \textbf{Attribute} & \textbf{Data type} & \textbf{Description} \\[3pt]\hline
+  \endhead
+  \endfoot
+  \endlastfoot
+  \nolinkurl{OrderPayment.id} & Bigint & PK. Generated identifier for a payment record; its source order and payment sequence are retained. \\[3pt]\hline
+  \nolinkurl{OrderPayment.orderId} & Bigint & FK to Order.id. Links a payment record to the order it pays for. \\[3pt]\hline
+  \nolinkurl{OrderReview.id} & Bigint & PK. Generated review-record identifier, with the original review identifier retained for traceability. \\[3pt]\hline
+  \nolinkurl{OrderReview.orderId} & Bigint & FK to Order.id. Links a satisfaction review to its purchase order. \\[3pt]\hline
+\end{longtable}
+}
+
+Geolocation remains a reference entity in the supplied diagram; no direct
+geolocation foreign key is shown. Its postal-code prefix will be used for the
+location matching and consolidation described in the integration process below.
+
+\subsection{Adapting the data model to the project}
+
+We will adapt the Olist data model to the project's operational database and data
+warehouse. The CSV files will first be imported into staging tables so that the
+original records and identifiers remain available. Their entities will then be
+mapped to the project's customers, products, categories, sellers, orders, order
+items, payments and reviews. Geolocation and category translations will serve as
+reference tables. Original identifiers will be retained for traceability, while
+warehouse fact and dimension tables will use the keys and grain defined by the
+project's analytical schema.
+
+The main links will be preserved: \nolinkurl{customer_id} connects orders to
+customer records; \nolinkurl{order_id} connects orders to items, payments and
+reviews; and \nolinkurl{product_id} and \nolinkurl{seller_id} connect items to
+products and sellers. \nolinkurl{customer_unique_id} will identify repeat buyers.
+Category names will link products to translations, and postal-code prefixes will
+link customer and seller locations to geography. Location records will be
+consolidated by prefix before joining, and payment and review records will be
+handled at their own grain to avoid multiplying order-item values in reports.
+
+For Association Rule Mining, the project will group distinct product IDs within
+eligible completed orders to construct purchase baskets. Purchase timestamps will
+support chronological training and evaluation. Historical item prices and freight
+charges will remain attached to their order items, rather than being overwritten
+by current catalogue prices. The administration dashboard will use the resulting
+warehouse records to calculate sales trends, order counts and product performance.
+For the electronics storefront, a documented subset of relevant categories will be
+selected while retaining the source order links and recording the scope of each
+experimental dataset.
+
+The source requires several adaptations to support the application. It does not provide original
+product names or descriptions or inventory balances. Translated category text will support an
+initial, limited semantic-recommendation baseline; richer catalogue text, if added for the project,
+will be documented separately and linked to the same product IDs. Demonstration stock levels and
+storefront display labels will be identified as project-created data.
+
+New completed storefront purchases retain their order links, product identifiers, quantities,
+purchase-time prices, timestamps and status. Together with catalogue updates, they can be loaded
+into the warehouse alongside historical purchases during a manually initiated refresh. The data
+scientist then creates a new dataset version and retrains and evaluates affected models before
+publication or activation. Carts remain current shopping state; browsing, click, cart-action and
+recommendation-impression histories are outside this project's data model. This approach fits the
+dataset's relational structure into the project while distinguishing imported records, derived
+information and data collected or created by the new system.
+
+% ---------------------------------------------------------------------
+% Insert before References. Upload the 15 referenced prototype-*.jpg images
+% into figures/. Uses the existing reportimage helper and table packages.
+% ---------------------------------------------------------------------
+\clearpage
+\section{Interactive Prototype and Interface Mockups}
+\label{sec:prototype}
+
+\emph{Signal Shop} demonstrates the buyer, administrator and data-scientist
+interfaces for Section~\ref{sec:fr}. The figures use report-preview mode with a
+curated electronics catalogue and sample orders. Recommendation pairings are
+hardcoded, similar products use category matches, and model values are illustrative.
+
+\subsection{Buyer interface and explained recommendations}
+\label{sec:prototype-buyer}
+
+The buyer flow is \emph{browse or search $\rightarrow$ product details
+$\rightarrow$ recommendations $\rightarrow$ bag $\rightarrow$ checkout
+$\rightarrow$ confirmation}. Table~\ref{tab:prototype-buyer} maps these screens to
+Table~\ref{tab:fr-buyer}.
+
+\begin{table}[H]
+  \centering
+  \caption{Buyer screens and related requirements.}
+  \label{tab:prototype-buyer}
+  \tablestyle
+  \begin{tabularx}{\textwidth}{|L{3.1cm}|>{\RaggedRight\arraybackslash}X|L{2.7cm}|}
+    \hline
+    \rowcolor{headbg}
+    \textbf{Screen} & \textbf{Information and actions} & \textbf{Requirements} \\\hline
+    Storefront and catalogue & Featured products, category browsing and sorting
+      (Figures~\ref{fig:prototype-storefront}--\ref{fig:prototype-catalogue}).
+      & \req{FR-B01} \\\hline
+    Search and details & Keyword results, product attributes, price and stock
+      (Figures~\ref{fig:prototype-search-results}--\ref{fig:prototype-product-detail}).
+      & \req{FR-B01} \\\hline
+    Bought together & Four complementary items with explanations on the product
+      page (Figure~\ref{fig:prototype-together}).
+      & \req{FR-B04}, \req{FR-B06} \\\hline
+    Similar products & Four alternatives below the selected product, retaining
+      search context (Figure~\ref{fig:prototype-similar}).
+      & \req{FR-B05}, \req{FR-B06} \\\hline
+    Bag & Quantities, subtotal and suggestions that exclude selected products
+      (Figure~\ref{fig:prototype-cart}).
+      & \req{FR-B02}, \req{FR-B04}, \req{FR-B06} \\\hline
+    Checkout and confirmation & Minimal contact details and a simulated order
+      number (Figures~\ref{fig:prototype-checkout}--\ref{fig:prototype-confirmation}).
+      & \req{FR-B02} \\\hline
+  \end{tabularx}
+\end{table}
+
+\begin{samepage}
+\subsubsection{Storefront and featured products}
+\label{sec:prototype-storefront-view}
+
+\textbf{Related requirements:} \req{FR-B01}.
+
+Figure~\ref{fig:prototype-storefront} shows the main page and its featured
+product list. Buyers can open an item or continue to the full collection.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-storefront.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Main storefront with featured products and access to the collection.}
+  \label{fig:prototype-storefront}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Product catalogue}
+\label{sec:prototype-catalogue-view}
+
+\textbf{Related requirements:} \req{FR-B01}.
+
+Figure~\ref{fig:prototype-catalogue} shows the collection page with product cards,
+category filters and sorting. Each card provides a route to product details.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-catalogue.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Product catalogue with category and sorting controls.}
+  \label{fig:prototype-catalogue}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Search results}
+\label{sec:prototype-search-view}
+
+\textbf{Related requirements:} \req{FR-B01}.
+
+Searching for ``smartphone'' returns matching products
+(Figure~\ref{fig:prototype-search-results}). The buyer selects Nova X1 to inspect
+its details and recommendations.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-search-results.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Keyword search results for smartphones.}
+  \label{fig:prototype-search-results}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Product details}
+\label{sec:prototype-product-detail-view}
+
+\textbf{Related requirements:} \req{FR-B01}, \req{FR-B02}.
+
+Figure~\ref{fig:prototype-product-detail} shows Nova X1's description, tags, price
+and stock. The search breadcrumb preserves the buyer's location, and
+\emph{Add to bag} starts the purchase flow.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-product-detail.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Selected smartphone with product information and an add-to-bag action.}
+  \label{fig:prototype-product-detail}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Frequently bought together}
+\label{sec:prototype-together-view}
+
+\textbf{Related requirements:} \req{FR-B04}, \req{FR-B06}.
+
+On the product page, selecting \emph{Frequently bought together} reveals four
+complementary items (Figure~\ref{fig:prototype-together}). The selected product
+remains visible above the suggestions and their explanations.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-frequently-bought-together.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Nova X1 product page with explained complementary suggestions.}
+  \label{fig:prototype-together}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Similar products}
+\label{sec:prototype-similar-view}
+
+\textbf{Related requirements:} \req{FR-B05}, \req{FR-B06}.
+
+Selecting \emph{Similar products} displays four smartphone alternatives
+(Figure~\ref{fig:prototype-similar}). Product details, the search breadcrumb,
+prices and explanations make the suggestion context explicit.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-similar-products.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Nova X1 product page with four similar smartphone alternatives.}
+  \label{fig:prototype-similar}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Shopping cart and basket recommendations}
+\label{sec:prototype-cart-view}
+
+\textbf{Related requirements:} \req{FR-B02}, \req{FR-B04}, \req{FR-B06}.
+
+Figure~\ref{fig:prototype-cart} shows the selected phone and charger, quantity
+controls and subtotal. Suggestions use the whole basket and exclude selected
+products; the checkout action continues the flow.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-cart.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Shopping bag with selected products, subtotal and basket suggestions.}
+  \label{fig:prototype-cart}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Checkout}
+\label{sec:prototype-checkout-view}
+
+\textbf{Related requirements:} \req{FR-B02}.
+
+Figure~\ref{fig:prototype-checkout} collects the buyer's name and email and shows
+the order total. The preview explicitly states that no payment is collected and
+the sample order is not saved.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-checkout.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Demo checkout with minimal contact information and order total.}
+  \label{fig:prototype-checkout}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Order confirmation}
+\label{sec:prototype-confirmation-view}
+
+\textbf{Related requirements:} \req{FR-B02}.
+
+Figure~\ref{fig:prototype-confirmation} confirms the demonstration order with an
+order number and total. The bag is cleared; preview confirmation does not change
+stored orders or sales figures.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-order-confirmation.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Simulated order confirmation after completing checkout.}
+  \label{fig:prototype-confirmation}
+\end{figure}
+\end{samepage}
+
+\clearpage
+\subsection{Administration dashboard and order inspection}
+\label{sec:prototype-admin}
+
+Table~\ref{tab:prototype-admin} maps the administration views to
+Table~\ref{tab:fr-admin}. Preview sales use consistent USD amounts and exclude
+canceled orders. Catalogue forms are shown for interface review; saving and
+withdrawal require live mode.
+
+\begin{table}[H]
+  \centering
+  \caption{Administration screens and related requirements.}
+  \label{tab:prototype-admin}
+  \tablestyle
+  \begin{tabularx}{\textwidth}{|L{3.1cm}|>{\RaggedRight\arraybackslash}X|L{2.7cm}|}
+    \hline
+    \rowcolor{headbg}
+    \textbf{Screen} & \textbf{Information and actions} & \textbf{Requirements} \\\hline
+    Catalogue and form & Product list, search, edit/withdraw actions and product
+      data entry (Figures~\ref{fig:prototype-admin-catalogue}--\ref{fig:prototype-product-form}).
+      & \req{FR-A01} \\\hline
+    Sales overview & Revenue, orders, average order value, best sellers and
+      trends with period selection (Figure~\ref{fig:prototype-sales}).
+      & \req{FR-A03} \\\hline
+    Orders & Search, status filtering, pagination and order selection
+      (Figure~\ref{fig:prototype-orders}). & \req{FR-A02} \\\hline
+    Order inspection & Customer, date, status, line items, purchase-time prices
+      and totals (Figure~\ref{fig:prototype-order-inspection}).
+      & \req{FR-A02}, \req{FR-B03} \\\hline
+  \end{tabularx}
+\end{table}
+
+\begin{samepage}
+\subsubsection{Catalogue management}
+\label{sec:prototype-admin-catalogue-view}
+
+\textbf{Related requirements:} \req{FR-A01}.
+
+Figure~\ref{fig:prototype-admin-catalogue} shows the administrator's product
+list with search, category filtering and edit/withdraw actions. Withdrawing a
+product in live mode retains historical order items.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-admin-catalogue.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Administrator product list with catalogue-management actions.}
+  \label{fig:prototype-admin-catalogue}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Product information form}
+\label{sec:prototype-product-form-view}
+
+\textbf{Related requirements:} \req{FR-A01}.
+
+Figure~\ref{fig:prototype-product-form} shows sample data entered for a new
+product. The form covers name, description, price, stock, category and tags;
+editing uses the same fields.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-product-form.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Product-entry form populated with demonstration values.}
+  \label{fig:prototype-product-form}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Sales overview}
+\label{sec:prototype-sales-view}
+
+\textbf{Related requirements:} \req{FR-A03}.
+
+Figure~\ref{fig:prototype-sales} displays sales indicators and trends for the
+selected seven-day or thirty-day period. These are sample-order aggregates;
+warehouse-derived reporting remains future work.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-sales.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Sales overview with period selection and sample indicators.}
+  \label{fig:prototype-sales}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Order browsing and selection}
+\label{sec:prototype-orders-view}
+
+\textbf{Related requirements:} \req{FR-A02}.
+
+Figure~\ref{fig:prototype-orders} lets the administrator search, filter and
+paginate orders. Selecting a record opens the inspection page in
+Section~\ref{sec:prototype-order-inspection-view}.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-orders.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Searchable order records linked to inspection pages.}
+  \label{fig:prototype-orders}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\subsubsection{Order inspection}
+\label{sec:prototype-order-inspection-view}
+
+\textbf{Related requirements:} \req{FR-A02}, \req{FR-B03}.
+
+Figure~\ref{fig:prototype-order-inspection} shows a sample order's customer,
+status, purchase date and line items. In live mode, inspection reads stored
+operational records and retains purchase-time names, quantities and prices.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-order-inspection.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Sample order details with purchase-time quantities and prices.}
+  \label{fig:prototype-order-inspection}
+\end{figure}
+\end{samepage}
+
+\clearpage
+\subsection{Data-scientist workspace}
+\label{sec:prototype-scientist}
+
+The retained overview illustrates version traceability. External scripts and
+notebooks remain responsible for the eventual data preparation and training.
+
+\begin{samepage}
+\subsubsection{Dataset and model versions}
+\label{sec:prototype-versions-view}
+
+\textbf{Related requirements:} \req{FR-D02}, \req{FR-D06}, \req{FR-D10}.
+
+Figure~\ref{fig:prototype-data-science} links sample model versions to dataset
+references, preparation times and statuses. It visualises experiment metadata
+without performing dataset extraction or retraining.
+
+\nopagebreak[4]
+\begin{figure}[H]
+  \centering
+  \reportimage[width=\textwidth,height=0.62\textheight,keepaspectratio]{figures/prototype-data-science.jpg}{\textwidth}{0.56\textwidth}
+  \caption{Sample dataset and model versions in the data-scientist workspace.}
+  \label{fig:prototype-data-science}
+\end{figure}
+\end{samepage}
+
+\clearpage
+\subsection{Prototype boundary and remaining implementation}
+\label{sec:prototype-boundary}
+
+The requirement links describe interface coverage, not completion of the
+analytical requirements. Dedicated active-model status (\req{FR-A04}) and detailed
+evaluation, publication and activation views (\req{FR-D07}--\req{FR-D09}) are omitted
+from the mockups.
+
+\begin{table}[H]
+  \centering
+  \caption{Prototype scope and remaining work.}
+  \label{tab:prototype-boundary}
+  \tablestyle
+  \begin{tabularx}{\textwidth}{|L{2.6cm}|>{\RaggedRight\arraybackslash}X|>{\RaggedRight\arraybackslash}X|}
+    \hline
+    \rowcolor{headbg}
+    \textbf{Area} & \textbf{Demonstrated} & \textbf{Remaining implementation} \\\hline
+    Recommendations & Explained curated pairings, four alternatives and
+      whole-basket context. & Learned rules, word embeddings and hybrid ranking
+      (\req{FR-B04}, \req{FR-B05}, \req{FR-D03}--\req{FR-D05}). \\\hline
+    Model overview & Sample dataset references, model versions and statuses.
+      & Versioned datasets/artefacts, measured evaluation, publication, activation
+      and role enforcement (\req{FR-D02}, \req{FR-D06}--\req{FR-D10}). \\\hline
+    Purchases and catalogue & Buyer flow, order inspection and catalogue forms.
+      & Preview checkout is not persisted; catalogue saving/withdrawal require
+      live mode. \\\hline
+    Reports and warehouse & Consistent sample sales; no warehouse-management
+      mockup. & ETL, analytical structures and warehouse-derived reports
+      (\req{FR-D01}, \req{FR-W01}--\req{FR-W06}). \\\hline
+  \end{tabularx}
+\end{table}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{References}
+\begin{thebibliography}{9}
+  \bibitem{olist2026} Olist, \emph{Brazilian E-Commerce Public Dataset by Olist}.
+    Kaggle. Available: \url{https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce}.
+    Accessed: 10 October 2026.
+  \bibitem{agrawal1994} R.~Agrawal and R.~Srikant, ``Fast algorithms for mining association rules,''
+    in \emph{Proc.\ 20th Int.\ Conf.\ Very Large Data Bases (VLDB)}, 1994, pp.~487--499.
+  \bibitem{han2000} J.~Han, J.~Pei, and Y.~Yin, ``Mining frequent patterns without candidate
+    generation,'' in \emph{Proc.\ ACM SIGMOD}, 2000, pp.~1--12.
+  \bibitem{mikolov2013} T.~Mikolov, K.~Chen, G.~Corrado, and J.~Dean, ``Efficient estimation of word
+    representations in vector space,'' \emph{arXiv:1301.3781}, 2013.
+  \bibitem{bojanowski2017} P.~Bojanowski, E.~Grave, A.~Joulin, and T.~Mikolov, ``Enriching word vectors
+    with subword information,'' \emph{Trans.\ Assoc.\ Comput.\ Linguistics}, vol.~5, pp.~135--146, 2017.
+  \bibitem{ricci2015} F.~Ricci, L.~Rokach, and B.~Shapira, Eds., \emph{Recommender Systems Handbook},
+    2nd~ed. Springer, 2015.
+  \bibitem{cockburn2000} A.~Cockburn, \emph{Writing Effective Use Cases}. Addison-Wesley, 2000.
+  \bibitem{kimball2013} R.~Kimball and M.~Ross, \emph{The Data Warehouse Toolkit: The Definitive Guide
+    to Dimensional Modeling}, 3rd~ed. Wiley, 2013.
+\end{thebibliography}
+
+\end{document}
